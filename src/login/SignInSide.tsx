@@ -29,8 +29,7 @@ export default function SignInSide() {
         try {
             const response = await login(formData); // Llama a la función de inicio de sesión del contexto
             // Realiza cualquier lógica adicional después del inicio de sesión exitoso
-            Cookies.set('loged_in', 'true', { expires: 1/24 }); // La cookie expira en 1 hora
-            navigate("/activities");
+            // console.log(response);
         } catch (error) {
             console.log("Fallo");
             // Lógica para manejar errores

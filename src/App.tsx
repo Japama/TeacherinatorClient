@@ -10,8 +10,9 @@ import ActivitiesPage from "./activities/ActivitiesPage";
 
 function App() {
   return (
-    <AuthProvider>
       <BrowserRouter>
+
+          <AuthProvider>
 
       {/*<div className="flex flex-col h-screen App bg-gray-50">*/}
       {/*  <div className='Header'>*/}
@@ -37,8 +38,9 @@ function App() {
       {/*  <div className='Footer '>*/}
       {/*  </div>*/}
       {/*</div>*/}
+          </AuthProvider>
+
       </BrowserRouter>
-    </AuthProvider>
   );
 }
 

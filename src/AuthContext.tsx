@@ -1,5 +1,7 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import Cookies from "js-cookie";
+import {useNavigate} from "react-router-dom";
 
 // Definir las acciones relacionadas con la autenticación
 type AuthAction = { type: 'LOGIN', username: string } | { type: 'LOGOUT' };
@@ -46,6 +48,7 @@ const AuthContext = createContext<{
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  const navigate = useNavigate();
 
   const login = async (formData: LoginForm) => {
     console.log(state.isLoggedIn)
@@ -63,10 +66,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Lógica de inicio de sesión exitoso aquí
           // Puedes actualizar el estado del usuario autenticado, por ejemplo
           dispatch({ type: 'LOGIN', username: formData.username });
+          Cookies.set('loged_in', 'true', {expires: 1 / 24}); // La cookie expira en 1 hora
+          navigate("/activities");
+
         } else {
           // Lógica para manejar un inicio de sesión fallido
           console.error('Inicio de sesión fallido');
           dispatch({ type: 'LOGOUT' }); // O cualquier otra lógica que necesites
+          throw new Error('Login failed');
         }
       } catch (error) {
         // Lógica para manejar errores de red u otros errores
