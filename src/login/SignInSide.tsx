@@ -45,7 +45,7 @@ export default function SignInSide() {
         const fetchData = async () => {
             const miCookie = Cookies.get('loged_in');
             if(miCookie === "true") {
-                navigate("/activities");
+                navigate("/index");
             }
         };
 

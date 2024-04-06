@@ -9,7 +9,7 @@ function App() {
 return (
     <BrowserRouter>
         <AuthProvider>
-            <div className='Body flex flex-col App bg-gray-50 xl:min-w-min'>
+            <div className='Body flex flex-col App bg-gray-500 dark:bg-[#393E46] xl:min-w-min'>
                 <Routes>
                     <Route path="/" element={<SignInSide/>}/>
                     <Route path="/login" element={<SignInSide/>}/>

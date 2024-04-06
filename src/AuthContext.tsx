@@ -54,8 +54,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log(state.isLoggedIn)
     if(!state.isLoggedIn){
       try {
-        const response = await fetch('http://localhost:8081/api/login', {
+        const response = await fetch('http://127.0.0.1:8081/api/login', {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -67,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Puedes actualizar el estado del usuario autenticado, por ejemplo
           dispatch({ type: 'LOGIN', username: formData.username });
           Cookies.set('loged_in', 'true', {expires: 1 / 24}); // La cookie expira en 1 hora
-          navigate("/activities");
+          navigate("/users");
 
         } else {
           // Lógica para manejar un inicio de sesión fallido
@@ -89,7 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
 
-    const response = await fetch('http://localhost:8081/api/logoff', {
+    const response = await fetch('http://127.0.0.1:8081/api/logoff', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
