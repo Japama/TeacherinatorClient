@@ -3,27 +3,47 @@ import { User } from './User';
 import UserList from './UserList';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { Teacher } from './Teacher';
-
+import { Teacher } from '../teachers/Teacher';
+import { Department } from '../departments/Department';
 
 function UsersPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
 
+  const [teachersLoaded, setTteachersLoaded] = useState(false);
+  const [departmentsLoaded, setDepartmentsLoaded] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const saveUser = (user: User) => {
+    console.log(user);
     let updatedUsers = users.map((u: User) => {
       return u.id === user.id ? user : u;
     });
+    console.log(updatedUsers);
     setUsers(updatedUsers);
   };
 
-  const getIsTeacher = (user_id: string) => {
-    return teachers.find(t => t.user_id === user_id);
+  const handleDeleteUser = async (user: User) => {
+    await fetchData("delete_user", { "id": user.id });
+
+    // Actualiza la lista de usuarios después de la eliminación
+    const users = await fetchData("list_users", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {
+        "order_bys": "id",
+        "offset": (currentPage - 1) * itemsPerPage,
+        "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
+      }
+    });
+    if (users) {
+      setUsers(users);
+    }
   };
 
   const fetchData = async (method: string, params: object) => {
@@ -39,7 +59,7 @@ function UsersPage() {
         "params": params
       }),
     });
-  
+
     if (response.ok) {
       const data = await response.json();
       return data.result;
@@ -48,9 +68,44 @@ function UsersPage() {
       return null;
     }
   };
+
+  const setUserDetails = (users: User[]) =>{
+    const usersWithDetails = users.map((user: User) => {
+      const teacher = getTeacher(user.id ? user.id : '');
+      const teacherDetails = teacher ? { id: teacher.id || '', department_id: teacher.department_id || '', active: teacher.active || false } : { id: '', department_id: '', active: false };
+      return new User({
+        ...user,
+        teacher: teacherDetails.id,
+        department: getDepartment(teacherDetails.department_id),
+        active: teacherDetails.active
+      });
+    });
+    setUsers(usersWithDetails);
+  };
+
+  const getTeacher = (user_id: string) => {
+    const teacher = teachers.find(t => t.user_id === user_id);
+    return teacher || { id: '', department_id: '', active: false }; // Devuelve un objeto Teacher predeterminado si no se encuentra el profesor
+  };  
   
+  const getDepartment = (depart_id: string) => {
+    const department = departments.find(d => d.id === depart_id);
+    return department ? department.name : '';
+  };
+
 
   useEffect(() => {
+    
+  const checkPage = () => {
+
+    if (itemsPerPage == 0 || itemsPerPage > totalUsers)
+      setCurrentPage(1);
+
+    if ((itemsPerPage * currentPage) >= totalUsers + itemsPerPage && currentPage > 1)
+      setCurrentPage(currentPage - 1);
+
+  }
+
     const fetchAllData = async () => {
       const miCookie = Cookies.get('loged_in');
       if (miCookie !== "true") {
@@ -67,21 +122,8 @@ function UsersPage() {
         if (allUsers) {
           setTotalUsers(allUsers.length);
         }
-  
-        const users = await fetchData("list_users", {
-          "filters": {
-            "id": { "$gte": 1000 }
-          },
-          "list_options": {
-            "order_bys": "id",
-            "offset": (currentPage - 1) * itemsPerPage,
-            "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
-          }
-        });
-        if (users) {
-          setUsers(users);
-        }
-  
+
+
         const teachers = await fetchData("list_teachers", {
           "filters": {
             "id": { "$gte": 1000 }
@@ -92,30 +134,50 @@ function UsersPage() {
         });
         if (teachers) {
           setTeachers(teachers);
+          setTteachersLoaded(true);
         }
+
+        const departments = await fetchData("list_departments", {
+          "filters": {
+            // "name": "Física"
+          },
+          "list_options": {
+            // "order_bys": "name"
+          }
+        });
+        if (departments) {
+          setDepartments(departments);
+          setDepartmentsLoaded(true);
+        }
+      };
+
+      const usersResponse = await fetchData("list_users", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id",
+          "offset": (currentPage - 1) * itemsPerPage,
+          "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
+        }
+      });
+      if (usersResponse) {
+        setUserDetails(usersResponse);
       }
-    };
+    }
 
     fetchAllData();
-
-    if (itemsPerPage == 0 || itemsPerPage > totalUsers)
-      setCurrentPage(1);
-
-    if ((itemsPerPage * currentPage) > totalUsers + itemsPerPage)
-      setCurrentPage(1);
-
-  }, [currentPage, itemsPerPage]);
-
+    checkPage();
+  }, [currentPage, itemsPerPage, teachersLoaded, departmentsLoaded]);
 
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
-  const usersWithTeachers = users.map(user => new User({ ...user, teacher: user.id ? getIsTeacher(user.id) : false }));
-
+ 
   return (
     <div className="items-center justify-center bg-gray-500">
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onSave={saveUser} users={usersWithTeachers} />
+      <UserList onSave={saveUser} users={users} onDelete={handleDeleteUser} departments={departments}  />
       <div className="flex items-center justify-center space-x-4">
         <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
           <option value={5}>5</option>

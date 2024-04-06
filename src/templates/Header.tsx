@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import { confirmAlert } from 'react-confirm-alert';
 
 function Header() {
   const { state, login, logout } = useAuth();
@@ -27,10 +28,21 @@ function Header() {
   };
 
   const handleClick = () => {
-    if (window.confirm("¿Estás seguro de que quieres cerrar la sesión?")) {
-        logoutMethod();
-    }
-};
+    confirmAlert({
+      title: 'Confirmar salida',
+      message: '¿Quieres salir?',
+      buttons: [
+        {
+          label: 'Sí',
+          onClick: () => logoutMethod()
+        },
+        {
+          label: 'No',
+        }
+      ]
+    });
+  };
+
   useEffect(() => {
     const closeDropDown = (e: Event) => {
       if (!dropDownMenuRef?.current?.contains(e.target as Node)) {

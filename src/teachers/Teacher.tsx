@@ -1,7 +1,7 @@
 export class Teacher {
   id: string | undefined;
   user_id: string = '';
-  active: string = '';
+  active: boolean = false;
   department_id: string = '';
 
   get isNew(): boolean {
