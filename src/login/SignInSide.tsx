@@ -45,7 +45,7 @@ export default function SignInSide() {
         const fetchData = async () => {
             const miCookie = Cookies.get('loged_in');
             if(miCookie === "true") {
-                navigate("/activities");
+                navigate("/index");
             }
         };
 
@@ -53,7 +53,7 @@ export default function SignInSide() {
     }, []); // El array vacío [] significa que este efecto se ejecutará una vez, justo después de que el componente se monte.
 
     return (
-        <div className="relative flex w-full pt-20 xl:pt-0  h-screen">
+        <div className="relative flex w-full h-screen">
             <div className="w-full bg-black">
                 <div className="mx-auto flex h-full w-2/3 flex-col justify-center text-white xl:w-1/2">
                     <div>
