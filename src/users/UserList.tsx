@@ -1,35 +1,74 @@
+import React, { useState } from 'react';
 import { User } from './User';
 import UserCard from './UserCard';
-import React, { useState } from 'react';
+import { Department } from '../departments/Department';
+import UserForm from './UserForm';
 
 interface UserListProps {
     users: User[];
+    onCreate: (teacher: User) => void;
     onSave: (user: User) => void;
+    onDelete: (user: User) => void;
+    departments: Department[];
 }
 
-function UserList({ users, onSave }: UserListProps) {
-    const [userBeingEdited, setUserBeingEdited] = useState({});
+function UserList({ users, onCreate, onSave, onDelete, departments }: UserListProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreate, setisCreate] = useState(false);
+    const [userBeingEdited, setUserBeingEdited] = useState<User | null>(null);
+    const [userBeingCreated, setUserBeingCreated] = useState<User | null>(null);
+
     const handleEdit = (user: User) => {
         setUserBeingEdited(user);
-    }
-    const cancelEditing = () => {
-        setUserBeingEdited({});
+        setisCreate(false);
+        setIsModalOpen(true);
     };
-    const items = users.map(user => (
-            user === userBeingEdited ? (
-                <div  key={user.id} ></div>
-                // <UserForm
-                //     user={user}
-                //     onSave={onSave}
-                //     onCancel={cancelEditing}
-                // />
-            ) : (
-                <UserCard  key={user.id} user={user} onEdit={handleEdit}  />
-            )
-    ));
-    return (
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setUserBeingEdited(null);
+    };
+
+    const items = users.map(user => (
+        <UserCard key={user.id} user={user} onEdit={handleEdit} onDelete={onDelete} />
+    ));
+
+
+    const openForm = () => {
+        setUserBeingEdited(new User);
+        setisCreate(true);
+        setIsModalOpen(true);
+    };
+
+    return (
         <div className="overflow-x-auto">
+            <button
+                onClick={openForm}
+                className={`mb-4 items-center rounded-full bg-green-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-green-700`}>
+                Crear Usuario
+            </button>
+            {userBeingEdited && (
+                <UserForm
+                    isOpen={isModalOpen}
+                    isCreate={isCreate}
+                    onClose={closeModal}
+                    onEdit={onSave}
+                    onCreate={onCreate}
+                    user={userBeingEdited}
+                    departments={departments}
+                />
+            )}
+            {userBeingCreated && (
+                <UserForm
+                    isOpen={isModalOpen}
+                    isCreate={isCreate}
+                    onClose={closeModal}
+                    onEdit={onSave}
+                    onCreate={onCreate}
+                    user={userBeingCreated}
+                    departments={departments}
+                />
+            )}
             <table className="min-w-full border border-gray-200 bg-white shadow-lg">
                 {/* Table Header */}
                 <thead>
@@ -39,7 +78,6 @@ function UserList({ users, onSave }: UserListProps) {
                         </th>
                         <th className="px-6 py-4 text-start">Nombre</th>
                         <th className="px-6 py-4 text-start">Es administrador</th>
-                        <th className="px-6 py-4 text-start">Profesor</th>
                         <th className="px-6 py-4 text-start">Editar</th>
                         <th className="px-6 py-4 text-start">Eliminar</th>
                     </tr>

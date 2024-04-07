@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import { confirmAlert } from 'react-confirm-alert';
 
 function Header() {
   const { state, login, logout } = useAuth();
@@ -27,10 +28,21 @@ function Header() {
   };
 
   const handleClick = () => {
-    if (window.confirm("¿Estás seguro de que quieres cerrar la sesión?")) {
-        logoutMethod();
-    }
-};
+    confirmAlert({
+      title: 'Confirmar salida',
+      message: '¿Quieres salir?',
+      buttons: [
+        {
+          label: 'Sí',
+          onClick: () => logoutMethod()
+        },
+        {
+          label: 'No',
+        }
+      ]
+    });
+  };
+
   useEffect(() => {
     const closeDropDown = (e: Event) => {
       if (!dropDownMenuRef?.current?.contains(e.target as Node)) {
@@ -59,7 +71,7 @@ function Header() {
           <Link to="/users">Usuarios</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
         </li>
         <li className="group flex  cursor-pointer flex-col">
-          <Link to="/activities">Actividades</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
+          <Link to="/teachers">Docentes</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
         </li>
         <li className="group flex  cursor-pointer flex-col bg-rose-700 rounded-md px-4 py-2">
           <button onClick={handleClick}> Salir </button><span className="mt-[2px] h-[3px]  w-[0px] rounded-full  transition-all duration-300 group-hover:w-full"></span>
@@ -76,7 +88,7 @@ function Header() {
               <Link to="/users">Usuarios</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
             </li>
             <li className="cursor-pointer  px-6 py-2 text-black dark:text-white hover:bg-sky-600 ">
-              <Link to="/activities">Actividades</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
+              <Link to="/teachers">Docentes</Link> <span className="mt-[2px] h-[3px]  w-[0px] rounded-full bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
             </li>
             <li className="cursor-pointer  px-6 py-2 text-black dark:text-white hover:bg-sky-600 bg-red-500  rounded-lg">
               <button onClick={handleClick}> Salir </button>
