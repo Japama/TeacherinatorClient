@@ -7,6 +7,7 @@ import ActivitiesPage from "../activities/ActivitiesPage";
 import ProjectsPage from "../projects/ProjectsPage";
 import UserPage from "../users/UsersPage";
 import IndexPage from '../index/IndexPage';
+import TeachersPage from '../teachers/TeachersPage';
 
 function LayoutPage() {
 return (
@@ -14,7 +15,7 @@ return (
     <Header />
     <Routes>
         <Route path="/index" element={<IndexPage/>}/>
-        <Route path="/activities" element={<ActivitiesPage/>}/>
+        <Route path="/teachers" element={<TeachersPage/>}/>
         <Route path="/users" element={<UserPage/>}/>
     </Routes>
     <Footer />
