@@ -18,22 +18,26 @@ function TeachersPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
 
-  const fetchAllData = async () => {
+  const checkLogin = () => {
     const miCookie = Cookies.get('loged_in');
     if (miCookie !== "true") {
       navigate("/login");
-    } else {
-      const allTeachers = await fetchData("list_teachers", {
-        "filters": {
-          "id": { "$gte": 1000 }
-        },
-        "list_options": {
-          "order_bys": "id"
-        }
-      });
-      if (allTeachers) {
-        setTotalTeachers(allTeachers.length);
+    }
+    return true;
+  };
+
+
+  const fetchAllData = async () => {
+    const allTeachers = await fetchData("list_teachers", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {
+        "order_bys": "id"
       }
+    });
+    if (allTeachers) {
+      setTotalTeachers(allTeachers.length);
     }
 
     const teachersResponse = await fetchData("list_teachers", {
@@ -49,10 +53,9 @@ function TeachersPage() {
 
     const departmentsResponse = await fetchData("list_departments", {
       "filters": {
-         "id": { "$gte": 1000 }
+        "id": { "$gte": 1000 }
       },
-      "list_options": {
-      }
+      "list_options": {}
     });
 
 
@@ -60,11 +63,7 @@ function TeachersPage() {
       "filters": {
         "id": { "$gte": 1000 }
       },
-      "list_options": {
-        // "order_bys": "id",
-        // "offset": (currentPage - 1) * itemsPerPage,
-        // "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
-      }
+      "list_options": {}
     });
 
 
@@ -77,43 +76,36 @@ function TeachersPage() {
     });
     if (allTeachersResponse) {
       setAllTeachers(allTeachersResponse)
-      // setUserDetails(usersResponse);
     }
 
-    const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
-    const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+    if (departmentsResponse && teachersResponse && usersResponse) {
+      const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
+      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
+        const department = departmentsMap.get(teacher.department_id);
+        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = usersMap.get(teacher.user_id);
+        // Asegúrate de que el departamento y el usuario existen antes de intentar acceder a sus propiedades.
+        if (department) {
+          teacher.department = new Department(department);
+        }
+        if (user) {
+          teacher.user = new User(user);
+        }
 
-
-    const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
-      const department = departmentsMap.get(teacher.department_id);
-      const user = usersMap.get(teacher.user_id);
-
-      // Asegúrate de que el departamento y el usuario existen antes de intentar acceder a sus propiedades.
-      if (department) {
-        teacher.department = new Department(department);
+        return new Teacher(teacher);
+      });
+      
+      if (teachersWithDetails){
+        setTeachers(teachersWithDetails);
       }
-      if (user) {
-        teacher.user = new User(user);
+
+      if (departmentsResponse) {
+        setDepartments(departmentsResponse)
       }
-
-      return new Teacher(teacher);
-    });
-
-    setTeachers(teachersWithDetails);
-
-    // if (teachersResponse) {
-    //   setTeachers(teachersResponse)
-    //   // setTeacherDetails(teachersResponse);
-    // }
-    if (departmentsResponse) {
-      setDepartments(departmentsResponse)
-      // setTeacherDetails(teachersResponse);
+      if (usersResponse) {
+        setUsers(usersResponse)
+      }
     }
-    if (usersResponse) {
-      setUsers(usersResponse)
-      // setUserDetails(usersResponse);
-    }
-
   }
 
 
@@ -173,7 +165,6 @@ function TeachersPage() {
       }),
     });
 
-    fetchAllData();
 
     if (!response.ok) {
       console.error(`Error al crear el usuario`);
@@ -252,17 +243,19 @@ function TeachersPage() {
 
 
   useEffect(() => {
-    const checkPage = () => {
-      if (itemsPerPage == 0 || itemsPerPage > totalTeachers)
-        setCurrentPage(1);
+    if (checkLogin()) {
+      const checkPage = () => {
+        if (itemsPerPage === 0 || itemsPerPage > totalTeachers)
+          setCurrentPage(1);
 
-      if ((itemsPerPage * currentPage) >= totalTeachers + itemsPerPage && currentPage > 1)
-        setCurrentPage(currentPage - 1);
+        if ((itemsPerPage * currentPage) >= totalTeachers + itemsPerPage && currentPage > 1)
+          setCurrentPage(currentPage - 1);
+      }
+
+      fetchAllData();
+      checkPage();
     }
-
-    fetchAllData();
-    checkPage();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, totalTeachers]);
 
   const totalPages = Math.ceil(totalTeachers / itemsPerPage);
 

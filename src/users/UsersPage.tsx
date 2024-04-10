@@ -79,20 +79,7 @@ function UsersPage() {
   const handleDeleteUser = async (user: User) => {
     await fetchData("delete_user", { "id": user.id });
 
-    // Actualiza la lista de usuarios después de la eliminación
-    const users = await fetchData("list_users", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
-      "list_options": {
-        "order_bys": "id",
-        "offset": (currentPage - 1) * itemsPerPage,
-        "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
-      }
-    });
-    if (users) {
-      setUsers(users);
-    }
+    fetchAllData();
   };
 
   const fetchData = async (method: string, params: object) => {
@@ -118,11 +105,15 @@ function UsersPage() {
     }
   };
 
-  const fetchAllData = async () => {
-    const miCookie = Cookies.get('loged_in');
+  const checkLogin = () =>{
+   const miCookie = Cookies.get('loged_in');
     if (miCookie !== "true") {
       navigate("/login");
-    } else {
+    }
+  };
+
+  const fetchAllData = async () => {
+
       const allUsers = await fetchData("list_users", {
         "filters": {
           "id": { "$gte": 1000 }
@@ -134,9 +125,6 @@ function UsersPage() {
       if (allUsers) {
         setTotalUsers(allUsers.length);
       }
-
-
-    }
 
     const usersResponse = await fetchData("list_users", {
       "filters": {
@@ -150,13 +138,12 @@ function UsersPage() {
     });
     if (usersResponse) {
       setUsers(usersResponse)
-      // setUserDetails(usersResponse);
     }
   }
 
 
   useEffect(() => {
-
+    checkLogin();
     const checkPage = () => {
 
       if (itemsPerPage == 0 || itemsPerPage > totalUsers)
