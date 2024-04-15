@@ -1,30 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { User } from './User';
-import UserList from './UserList';
+import { Department } from './Department';
+import DepartmentList from './DepartmentList';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-interface UserData {
+interface DepartmentData {
   id?: string;
   data: {
-    username: string;
-    isadmin: boolean;
-    pwd: string;
+    name: string;
   };
 }
 
-function UsersPage() {
+function DepartmentsPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
-
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [totalDepartments, setTotalDepartments] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
-}
+  }
 
   const fetchData = async (method: string, params: object) => {
     const response = await fetch('http://127.0.0.1:8081/api/rpc', {
@@ -44,29 +41,29 @@ function UsersPage() {
       const data = await response.json();
       return data.result;
     } else {
-      console.error(`Error al obtener los ${method}`);
-      return null;
+      const errorData = await response.json();
+      throw new Error(errorData.error.message);
     }
   };
 
-  async function fetchUsers() {
-    const usersResponse = await fetchData("list_users", {
+  async function fetchDepartments() {
+    const departmentsResponse = await fetchData("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
-        "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
+        "limit": itemsPerPage === 0 ? totalDepartments : itemsPerPage
       }
     });
-    if (usersResponse) {
-      setUsers(usersResponse);
+    if (departmentsResponse) {
+      setDepartments(departmentsResponse);
     }
   }
 
-  async function fetchAllUsers() {
-    const allUsers = await fetchData("list_users", {
+  async function fetchAllDepartments() {
+    const allDepartmentss = await fetchData("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -74,61 +71,59 @@ function UsersPage() {
         "order_bys": "id"
       }
     });
-    if (allUsers) {
-      setTotalUsers(allUsers.length);
+
+    if (allDepartmentss) {
+      setTotalDepartments(allDepartmentss.length);
     }
   }
 
   const fetchAllData = async () => {
-    await fetchAllUsers();
-    await fetchUsers();
-  };
-  const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
-      navigate("/login");
-    }
-  };
+    await fetchAllDepartments();
+    await fetchDepartments();
+  }
 
-  const handleCreateOrUpdateUser = async (user: User) => {
-    const update = user.id ? true : false;
-    const method = update ? "update_user_pwd" : "create_user";
-    const data: UserData = {
+  const handleCreateOrUpdateDepartment = async (department: Department) => {
+    const update = department.id ? true : false;
+    const method = update ? "update_department" : "create_department";
+    const data: DepartmentData = {
       data: {
-        username: user.username,
-        isadmin: user.isadmin,
-        pwd: user.pwd
+        name: department.name
       }
     };
 
     if (update) {
-      data.id = user.id;
+      data.id = department.id;
     }
 
     const responseData = await fetchData(method, data);
 
     if (!responseData.id ? true : false) {
-      console.error(`Error al ${method === "update_user_pwd" ? "actualizar" : "crear"} el usuario`);
+      console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
     }
 
     if (update) {
-      let updatedUsers = users.map((u: User) => {
-        return u.id === user.id ? user : u;
+      let updatedDepartments = departments.map((u: Department) => {
+        return u.id === department.id ? department : u;
       });
-      setUsers(updatedUsers);
+      setDepartments(updatedDepartments);
     } else {
-      if (users.length === itemsPerPage) {
+      if (departments.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
       }
       fetchAllData();
     }
   };
 
-  const handleDeleteUser = async (user: User) => {
+  const handleDeleteDepartment = async (department: Department) => {
     try {
-      await fetchData("delete_user", { "id": user.id });
 
-      if (users.length === 1) {
+      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+        notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
+        return;
+      }
+
+      await fetchData("delete_department", { "id": department.id });
+      if (departments.length === 1) {
         setCurrentPage(currentPage - 1);
       }
       fetchAllData();
@@ -136,7 +131,6 @@ function UsersPage() {
       if (error instanceof Error) {
         notify(error.message);
       }
-      notify("No se ha podido borrar el usuario");
     }
   };
 
@@ -147,31 +141,29 @@ function UsersPage() {
   const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(event.target.value);
     setItemsPerPage(n);
-    if (n === 0 || n > totalUsers)
+    if (n === 0 || n > totalDepartments)
       setCurrentPage(1);
 
-    if ((n * currentPage) > totalUsers + n && currentPage > 1) {
-      const pagina = Math.ceil(totalUsers / n);
+    if ((n * currentPage) > totalDepartments + n && currentPage > 1) {
+      const pagina = Math.ceil(totalDepartments / n);
       setCurrentPage(pagina);
+    }
+  };
+
+
+  const checkLogin = () => {
+    const miCookie = Cookies.get('loged_in');
+    if (miCookie !== "true") {
+      navigate("/login");
     }
   };
 
   useEffect(() => {
     checkLogin();
-    const checkPage = () => {
-
-      if (itemsPerPage === 0 || itemsPerPage > totalUsers)
-        setCurrentPage(1);
-
-      if ((itemsPerPage * currentPage) >= totalUsers + itemsPerPage && currentPage > 1)
-        setCurrentPage(currentPage - 1);
-    }
-
     fetchAllData();
-    checkPage();
   }, [currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(totalUsers / itemsPerPage);
+  const totalPages = Math.ceil(totalDepartments / itemsPerPage);
   const paginationRange = 9;
   const halfPaginationRange = Math.floor(paginationRange / 2);
   const startPage = Math.max(1, currentPage - halfPaginationRange);
@@ -180,11 +172,11 @@ function UsersPage() {
   return (
     <div className="items-center justify-center bg-gray-500">
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
-        <h1>Usuarios</h1>
+        <h1>Departamentos</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} />
+      <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />
       <div className="flex items-center justify-center space-x-4">
-        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+        <select value={itemsPerPage} onChange={handleItemsPerPageChange} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
           {[5, 10, 20, 50, 0].map((value, index) => (
             <option key={index} value={value}>{value === 0 ? "Todos" : value}</option>
           ))}
@@ -226,4 +218,4 @@ function UsersPage() {
   );
 }
 
-export default UsersPage;
+export default DepartmentsPage;

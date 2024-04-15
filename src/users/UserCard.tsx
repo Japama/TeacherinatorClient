@@ -1,5 +1,4 @@
 import { User } from './User';
-import React, { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
 // import Modal from './Modal';
@@ -11,8 +10,7 @@ interface UserCardProps {
 }
 
 function UserCard(props: UserCardProps) {
-    const { user, onEdit, onDelete } = props;
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user, onEdit } = props;
 
     const handleEditClick = () => {
         onEdit(user);
@@ -21,7 +19,7 @@ function UserCard(props: UserCardProps) {
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar este usuario? Si es un/a profesor/a se borrarán también sus horarios',
+            message: '¿Estás seguro de que quieres eliminar este usuario? Si es docente, este se borrará también junto a sus horarios',
             buttons: [
                 {
                     label: 'Sí',
@@ -34,14 +32,8 @@ function UserCard(props: UserCardProps) {
         });
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
-
-
     return (
         <>
-            {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} user={user} /> */}
             <tr className="h-[70px] border-b bg-[#484D58] text-[#FFFFFF]">
                 <td className="px-6 py-4 text-start">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
