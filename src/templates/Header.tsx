@@ -59,9 +59,9 @@ function Header() {
   }, []);
 
   return (
-    <nav className="flex items-center justify-between px-4 py-2 bg-gray-500 dark:bg-[#393E46] text-white dark:text-white">
+    <nav className="flex items-center justify-between px-4 py-2 bg-gray-800 dark:bg-[#393E46] text-white dark:text-white">
       <div className="scale-100 cursor-pointer rounded-2xl px-3 py-2 text-xl font-semibold text-white dark:text-white transition-all duration-200 hover:scale-110">
-        <h2>Teachirnator</h2>
+        <h2>Teacherinator</h2>
       </div>
       <ul className="hidden items-center justify-between gap-10 md:flex">
         <li className="group flex  cursor-pointer flex-col">

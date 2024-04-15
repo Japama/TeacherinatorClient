@@ -6,6 +6,7 @@ import { Teacher } from './Teacher';
 import { Department } from '../departments/Department';
 import { User } from '../users/User';
 import { toast } from 'react-toastify';
+import Pagination from '../templates/Pagination';
 
 interface TeacherData {
   id?: string;
@@ -31,7 +32,7 @@ function TeachersPage() {
 
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
-}
+  }
 
   const fetchData = async (method: string, params: object) => {
     const response = await fetch('http://127.0.0.1:8081/api/rpc', {
@@ -263,7 +264,7 @@ function TeachersPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500">
+    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Docentes</h1>
       </div>
@@ -277,48 +278,16 @@ function TeachersPage() {
         allTeachers={allTeachers}
         departments={departments}
         users={users} />
-
-      <div className="flex items-center justify-center space-x-4 my-4">
-        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
-          {[5, 10, 20, 50, 0].map((value, index) => (
-            <option key={index} value={value}>{value === 0 ? "Todos" : value}</option>
-          ))}
-        </select>
-        <button
-          onClick={() => handlePagination(1)}
-          disabled={currentPage === 1 || itemsPerPage === 0}
-          className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${currentPage === 1 && 'opacity-50 cursor-not-allowed'}`}>
-          Primera
-        </button>
-        <button
-          onClick={() => handlePagination(currentPage - 1)}
-          disabled={currentPage === 1 || itemsPerPage === 0}
-          className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${currentPage === 1 && 'opacity-50 cursor-not-allowed'}`}>
-          Anterior
-        </button>
-        {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(page => (
-          <button
-            key={page}
-            onClick={() => handlePagination(page)}
-            className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${currentPage === page && 'bg-blue-700'}`}>
-            {page}
-          </button>
-        ))}
-        <button
-          onClick={() => handlePagination(currentPage + 1)}
-          disabled={currentPage === totalPages || itemsPerPage === 0}
-          className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${(currentPage === totalPages || itemsPerPage === 0) && 'opacity-50 cursor-not-allowed'}`}>
-          Siguiente
-        </button>
-        <button
-          onClick={() => handlePagination(totalPages)}
-          disabled={currentPage === totalPages || itemsPerPage === 0}
-          className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${(currentPage === totalPages || itemsPerPage === 0) && 'opacity-50 cursor-not-allowed'}`}>
-          Última
-        </button>
-      </div>
+      <Pagination
+        itemsPerPage={itemsPerPage}
+        handleItemsPerPageChange={handleItemsPerPageChange}
+        currentPage={currentPage}
+        handlePagination={handlePagination}
+        endPage={endPage}
+        startPage={startPage}
+        totalPages={totalPages}
+      />
     </div>
-
   );
 }
 
