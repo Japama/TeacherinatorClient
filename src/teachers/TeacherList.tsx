@@ -4,27 +4,33 @@ import TeacherCard from './TeacherCard';
 import TeacherForm from './TeacherForm'; // Asegúrate de tener un componente Modal
 import { Department } from '../departments/Department';
 import { User } from '../users/User';
-import { getAllByAltText } from '@testing-library/react';
 
 interface TeacherListProps {
-    teachers: Teacher[];
-    allTeachers: Teacher[];
-    onCreateUser: (username: string) => Promise<User>;
     onCreateTeacher: (teacher: Teacher) => void;
     onSave: (teacher: Teacher) => void;
     onDelete: (teacher: Teacher) => void;
+    onCreateUser: (username: string) => Promise<User>;
+    checkUsername: (username: string) => Promise<boolean>;
+    teachers: Teacher[];
+    allTeachers: Teacher[];
     departments: Department[];
     users: User[];
 }
 
-function TeacherList({ teachers, onSave, onDelete, onCreateUser, onCreateTeacher, departments, users, allTeachers }: TeacherListProps) {
+function TeacherList({ onSave, onDelete, onCreateTeacher, onCreateUser, checkUsername, teachers, departments, users, allTeachers }: TeacherListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreateModal, setisCreateModal] = useState(false);
     const [teacherBeingEdited, setTeacherBeingEdited] = useState<Teacher | null>(null);
-    const [teacherBeingCreated, setTeacherBeingCreated] = useState<Teacher | null>(null);
+
+    const handleCreate = () => {
+        setTeacherBeingEdited(new Teacher());
+        setisCreateModal(true);
+        setIsModalOpen(true);
+    };
 
     const handleEdit = (teacher: Teacher) => {
         setTeacherBeingEdited(teacher);
+        setisCreateModal(false);
         setIsModalOpen(true);
     };
 
@@ -33,49 +39,46 @@ function TeacherList({ teachers, onSave, onDelete, onCreateUser, onCreateTeacher
         setTeacherBeingEdited(null);
     };
 
-    const items = teachers.map(teacher => (
+    const teacherCards = teachers.map(teacher => (
         <TeacherCard key={teacher.id} teacher={teacher} onEdit={handleEdit} onDelete={onDelete} />
     ));
 
-    const openForm = () => {
-        setTeacherBeingEdited(new Teacher);
-        setisCreateModal(true);
-        setIsModalOpen(true);
-    };
 
     return (
         <div className="overflow-x-auto">
             <button
-                onClick={openForm}
+                onClick={handleCreate}
                 className={`mb-4 items-center rounded-full bg-green-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-green-700`}>
                 Crear docente
             </button>
             {teacherBeingEdited && (
                 <TeacherForm
-                    isOpen={isModalOpen}
-                    isCreate={isCreateModal}
                     onClose={closeModal}
                     onEdit={onSave}
                     onCreate={onCreateTeacher}
                     onCreateUser={onCreateUser}
-                    teacher={teacherBeingEdited}
+                    checkUsername={checkUsername}
+                    isOpen={isModalOpen}
+                    isCreate={isCreateModal}
                     departments={departments}
                     users={users}
+                    teacher={teacherBeingEdited}
                     teachers={teachers}
                     allTeachers={allTeachers}
                 />
             )}
-            {teacherBeingCreated && (
+            {!teacherBeingEdited && (
                 <TeacherForm
-                    isOpen={isModalOpen}
-                    isCreate={isCreateModal}
                     onClose={closeModal}
                     onEdit={onSave}
                     onCreate={onCreateTeacher}
                     onCreateUser={onCreateUser}
-                    teacher={teacherBeingCreated}
+                    checkUsername={checkUsername}
+                    isOpen={isModalOpen}
+                    isCreate={isCreateModal}
                     departments={departments}
                     users={users}
+                    teacher={new Teacher()}
                     teachers={teachers}
                     allTeachers={allTeachers}
                 />
@@ -95,7 +98,7 @@ function TeacherList({ teachers, onSave, onDelete, onCreateUser, onCreateTeacher
                     </tr>
                 </thead>
                 <tbody>
-                    {items}
+                    {teacherCards}
                 </tbody>
             </table>
 

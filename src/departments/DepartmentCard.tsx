@@ -21,7 +21,7 @@ function DepartmentCard(props: DepartmentCardProps) {
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar este usuario? Si es un/a profesor/a se borrarán también sus horarios',
+            message: '¿Seguro que quieres eliminar este departamento?',
             buttons: [
                 {
                     label: 'Sí',

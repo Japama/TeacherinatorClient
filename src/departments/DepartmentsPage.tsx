@@ -3,6 +3,14 @@ import { Department } from './Department';
 import DepartmentList from './DepartmentList';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+
+interface DepartmentData {
+  id?: string;
+  data: {
+    name: string;
+  };
+}
 
 function DepartmentsPage() {
   const navigate = useNavigate();
@@ -10,6 +18,10 @@ function DepartmentsPage() {
   const [totalDepartments, setTotalDepartments] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const notify = (message: string) => {
+    toast(message, { position: "top-center" })
+  }
 
   const fetchData = async (method: string, params: object) => {
     const response = await fetch('http://127.0.0.1:8081/api/rpc', {
@@ -50,7 +62,7 @@ function DepartmentsPage() {
     }
   }
 
-  async function fecthAllDepartments() {
+  async function fetchAllDepartments() {
     const allDepartmentss = await fetchData("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
@@ -64,11 +76,63 @@ function DepartmentsPage() {
       setTotalDepartments(allDepartmentss.length);
     }
   }
-  
+
   const fetchAllData = async () => {
-    await fecthAllDepartments();
+    await fetchAllDepartments();
     await fetchDepartments();
   }
+
+  const handleCreateOrUpdateDepartment = async (department: Department) => {
+    const update = department.id ? true : false;
+    const method = update ? "update_department" : "create_department";
+    const data: DepartmentData = {
+      data: {
+        name: department.name
+      }
+    };
+
+    if (update) {
+      data.id = department.id;
+    }
+
+    const responseData = await fetchData(method, data);
+
+    if (!responseData.id ? true : false) {
+      console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
+    }
+
+    if (update) {
+      let updatedDepartments = departments.map((u: Department) => {
+        return u.id === department.id ? department : u;
+      });
+      setDepartments(updatedDepartments);
+    } else {
+      if (departments.length === itemsPerPage) {
+        setCurrentPage(currentPage + 1);
+      }
+      fetchAllData();
+    }
+  };
+
+  const handleDeleteDepartment = async (department: Department) => {
+    try {
+
+      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+        notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
+        return;
+      }
+
+      await fetchData("delete_department", { "id": department.id });
+      if (departments.length === 1) {
+        setCurrentPage(currentPage - 1);
+      }
+      fetchAllData();
+    } catch (error) {
+      if (error instanceof Error) {
+        notify(error.message);
+      }
+    }
+  };
 
   const handlePagination = (newPage: number) => {
     setCurrentPage(newPage);
@@ -77,7 +141,7 @@ function DepartmentsPage() {
   const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(event.target.value);
     setItemsPerPage(n);
-    if (n == 0 || n > totalDepartments)
+    if (n === 0 || n > totalDepartments)
       setCurrentPage(1);
 
     if ((n * currentPage) > totalDepartments + n && currentPage > 1) {
@@ -86,44 +150,6 @@ function DepartmentsPage() {
     }
   };
 
-  const handleCreateOrUpdateDepartment = async (department: Department) => {
-    const update = department.id ? true : false;
-    const method = update ? "update_department" : "create_department";
-    const data = update ? { "id": department.id, "data": { "name": department.name } } : { "data": { "name": department.name } };
-
-    const responseData = await fetchData(method, data);
-
-    if (!responseData.id ? true : false) {
-      console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
-    }
-    if (departments.length === itemsPerPage) {
-      setCurrentPage(currentPage + 1);
-    }
-    if (update) {
-      let updatedDepartments = departments.map((u: Department) => {
-        return u.id === department.id ? department : u;
-      });
-      setDepartments(updatedDepartments);
-    } else {
-      fetchAllData();
-    }
-  };
-
-  const handleDeleteDepartment = async (department: Department) => {
-    try {
-      await fetchData("delete_department", { "id": department.id });
-
-      if (departments.length === 1) {
-        setCurrentPage(currentPage - 1);
-      }
-      fetchAllData();
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      }
-      alert("No se puede borrar el departamento porque hay docentes que pertenecen a �l");
-    }
-  };
 
   const checkLogin = () => {
     const miCookie = Cookies.get('loged_in');
@@ -150,7 +176,7 @@ function DepartmentsPage() {
       </div>
       <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />
       <div className="flex items-center justify-center space-x-4">
-        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+        <select value={itemsPerPage} onChange={handleItemsPerPageChange} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
           {[5, 10, 20, 50, 0].map((value, index) => (
             <option key={index} value={value}>{value === 0 ? "Todos" : value}</option>
           ))}
@@ -187,7 +213,6 @@ function DepartmentsPage() {
           className={`px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none ${(currentPage === totalPages || itemsPerPage === 0) && 'opacity-50 cursor-not-allowed'}`}>
           Última
         </button>
-
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ function DepartmentForm(props: DepartmentFormProps) {
     return (
         <div className="modal " style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className=" rounded-md modal-content w-full mx-auto lg:w-[500px] drop-shadow-lg bg-white p-12" style={{ position: 'relative', margin: '0 auto', top: '50%', transform: 'translateY(-50%)' }}>
-                <h1 className="backdrop-blur-sm text-4xl pb-8">Editar Usuario</h1>
+            <h1 className="backdrop-blur-sm text-4xl pb-8">  {department.id ? 'Editar departamento' : 'Crear departamento'}</h1>
                 <form id="departmentForm" onSubmit={handleSubmit} className="space-y-5">
                     <div className="relative">
                         <label htmlFor="name" className="block">Nombre:</label>

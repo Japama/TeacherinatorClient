@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { User } from './User';
 import UserCard from './UserCard';
-import { Department } from '../departments/Department';
 import UserForm from './UserForm';
 
 interface UserListProps {
@@ -9,14 +8,12 @@ interface UserListProps {
     onCreate: (teacher: User) => void;
     onSave: (user: User) => void;
     onDelete: (user: User) => void;
-    departments: Department[];
 }
 
-function UserList({ users, onCreate, onSave, onDelete, departments }: UserListProps) {
+function UserList({ users, onCreate, onSave, onDelete }: UserListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreate, setisCreate] = useState(false);
     const [userBeingEdited, setUserBeingEdited] = useState<User | null>(null);
-    const [userBeingCreated, setUserBeingCreated] = useState<User | null>(null);
 
     const handleEdit = (user: User) => {
         setUserBeingEdited(user);
@@ -35,7 +32,7 @@ function UserList({ users, onCreate, onSave, onDelete, departments }: UserListPr
 
 
     const openForm = () => {
-        setUserBeingEdited(new User);
+        setUserBeingEdited(new User());
         setisCreate(true);
         setIsModalOpen(true);
     };
@@ -55,22 +52,19 @@ function UserList({ users, onCreate, onSave, onDelete, departments }: UserListPr
                     onEdit={onSave}
                     onCreate={onCreate}
                     user={userBeingEdited}
-                    departments={departments}
                 />
             )}
-            {userBeingCreated && (
+            {!userBeingEdited && (
                 <UserForm
                     isOpen={isModalOpen}
                     isCreate={isCreate}
                     onClose={closeModal}
                     onEdit={onSave}
                     onCreate={onCreate}
-                    user={userBeingCreated}
-                    departments={departments}
+                    user={new User()}
                 />
             )}
             <table className="min-w-full border border-gray-200 bg-white shadow-lg">
-                {/* Table Header */}
                 <thead>
                     <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">
                         <th className="w-[50px] px-6 py-4 text-start ">
