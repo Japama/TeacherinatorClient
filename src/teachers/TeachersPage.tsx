@@ -11,7 +11,7 @@ import Pagination from '../templates/Pagination';
 interface TeacherData {
   id?: string;
   data: {
-    user_id: string;
+    user_id: number;
     user: User | undefined;
     active: boolean;
     department_id: string;

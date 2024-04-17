@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 
 interface UserData {
-  id?: string;
+  id?: number;
   data: {
     username: string;
     isadmin: boolean;

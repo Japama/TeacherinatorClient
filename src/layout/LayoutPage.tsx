@@ -7,6 +7,8 @@ import TeachersPage from '../teachers/TeachersPage';
 import DepartmentsPage from "../departments/DepartmentsPage";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import GroupsPage from "../groups/GroupsPage";
+import SchedulesPage from "../schedules/SchedulesPage";
 
 function LayoutPage() {
   return (
@@ -18,6 +20,8 @@ function LayoutPage() {
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/teachers" element={<TeachersPage />} />
           <Route path="/users" element={<UserPage />} />
+          <Route path="/groups" element={<GroupsPage />} />
+          <Route path="/schedules" element={<SchedulesPage />} />
         </Routes>
       <Footer />
     </div>
