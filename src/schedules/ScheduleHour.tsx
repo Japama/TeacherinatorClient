@@ -5,8 +5,8 @@ export class ScheduleHour {
   classroom_name: string = '';
   week_day: number = 0;
   n_hour: number = 0;
-  start_time: number[] = [0, 0, 0, 0]; // Array de números para representar la hora de inicio
-  end_time: number[] = [0, 0, 0, 0]; // Array de números para representar la hora de fin
+  start_time: [number, number, number, number] = [0, 0, 0, 0]; // Tupla de números para representar la hora de inicio
+  end_time: [number, number, number, number] = [0, 0, 0, 0]; // Array de números para representar la hora de fin
   course: number = 0;
 
   get isNew(): boolean {
