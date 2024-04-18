@@ -1,3 +1,4 @@
+// Header.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../AuthContext';
 import Cookies from "js-cookie";
@@ -14,7 +15,6 @@ function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropDownState, setDropDownState] = useState(false);
   const dropDownMenuRef = useRef<HTMLDivElement>(null);
-
 
   const logoutMethod = async (): Promise<void> => {
 
@@ -68,11 +68,11 @@ function Header() {
 
       <ul className="hidden items-center justify-between gap-10 md:flex">
         <NavItem to="/" label="Indice" />
-        <NavItem to="/users" label="Usuarios" />
-        <NavItem to="/teachers" label="Docentes" />
-        <NavItem to="/departments" label="Departamentos" />
-        <NavItem to="/groups" label="Grupos" />
-        <NavItem to="/schedules" label="Horarios" />
+        {state.isAdmin && <NavItem to="/users" label="Usuarios" />}
+        {state.isAdmin && <NavItem to="/teachers" label="Docentes" />}
+        {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
+        {state.isAdmin && <NavItem to="/groups" label="Grupos" />}
+        {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
         <li className="group flex  cursor-pointer flex-col bg-rose-700 rounded-md px-4 py-2">
           <button onClick={handleClick}> Salir </button><span className="mt-[2px] h-[3px]  w-[0px] rounded-full  transition-all duration-300 group-hover:w-full"></span>
         </li>
@@ -82,10 +82,10 @@ function Header() {
         {dropDownState && (
           <ul className=" z-10  gap-2  bg-gray-200 dark:bg-[#393E46]  absolute right-0 top-11 flex w-[200px] flex-col  rounded-lg   text-base ">
             <DropNavItem to="/" children="Indice" />
-            <DropNavItem to="/users" children="Usuarios" />
-            <DropNavItem to="/teachers" children="Docentes" />
-            <DropNavItem to="/departments" children="Departamentos" />
-            <DropNavItem to="/schedules" children="Horarios" />
+            {state.isAdmin && <DropNavItem to="/users" children="Usuarios" />}
+            {state.isAdmin && <DropNavItem to="/teachers" children="Docentes" />}
+            {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}
+            {state.isAdmin && <DropNavItem to="/schedules" children="Horarios" />}
             <li className="cursor-pointer  px-6 py-2 text-black dark:text-white hover:bg-sky-600 bg-red-500  rounded-lg">
               <button onClick={handleClick}> Salir </button>
             </li>
@@ -93,8 +93,7 @@ function Header() {
         )}
       </div>
     </nav>
-  )
-    ;
+  );
 }
 
 export default Header;
