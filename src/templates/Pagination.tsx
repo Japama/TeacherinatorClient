@@ -12,7 +12,7 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ itemsPerPage, handleItemsPerPageChange, currentPage, handlePagination, endPage, startPage, totalPages }) => {
     return (
-        <div className='pagination mt-6'>
+        <div className='pagination py-6'>
             <div className="flex items-center justify-center space-x-4">
                 <select value={itemsPerPage} onChange={handleItemsPerPageChange} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'>
                     {[5, 10, 20, 50, 0].map((value, index) => (
