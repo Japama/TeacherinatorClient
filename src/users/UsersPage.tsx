@@ -157,6 +157,12 @@ function UsersPage() {
     }
   };
 
+  const checkUsername = async (username: String) => {
+    const method = "check_duplicate_username";
+    const params = { data: username };
+    return await fetchData(method, params);
+  };
+
   useEffect(() => {
     checkLogin();
     const checkPage = () => {
@@ -183,7 +189,7 @@ function UsersPage() {
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} />
+      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
     </div>
   );

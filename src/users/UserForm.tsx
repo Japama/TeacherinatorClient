@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User } from './User';
+import { toast } from 'react-toastify';
 
 interface UserFormProps {
     isOpen: boolean;
@@ -7,11 +8,12 @@ interface UserFormProps {
     onClose: () => void;
     onEdit: (user: User) => void;
     onCreate: (user: User) => void;
+    checkUsername: (username: string) => Promise<boolean>;
     user: User;
 }
 
 function UserForm(props: UserFormProps) {
-    const { isOpen, isCreate, onClose, onEdit, onCreate, user } = props;
+    const { isOpen, isCreate, onClose, onEdit, onCreate, user, checkUsername } = props;
     const [editedUser, setEditedUser] = useState(user);
     const [isChangePasswordChecked, setIsChangePasswordChecked] = useState(false);
 
@@ -30,14 +32,23 @@ function UserForm(props: UserFormProps) {
         setEditedUser(updatedUser);
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
+
+    const notify = (message: string) => {
+        toast(message, { position: "top-center" })
+    };
+
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (editedUser.id)
             onEdit(editedUser);
-        else
+        else{
+            if (await checkUsername(editedUser.username)) {
+                notify("Ya existe un usuario con ese nombre.");
+                return
+            }
             onCreate(editedUser);
+        }
         onClose();
-
     };
 
 

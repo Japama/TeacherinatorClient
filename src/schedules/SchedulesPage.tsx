@@ -168,7 +168,6 @@ function SchedulesPage() {
         }
       });
       if (scheduleHoursResponse) {
-        console.log(scheduleHoursResponse)
         setScheduleHours(scheduleHoursResponse);
       }
     } catch (error) {

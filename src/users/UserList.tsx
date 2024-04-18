@@ -8,9 +8,10 @@ interface UserListProps {
     onCreate: (teacher: User) => void;
     onSave: (user: User) => void;
     onDelete: (user: User) => void;
+    checkUsername: (username: string) => Promise<boolean>;
 }
 
-function UserList({ users, onCreate, onSave, onDelete }: UserListProps) {
+function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreate, setisCreate] = useState(false);
     const [userBeingEdited, setUserBeingEdited] = useState<User | null>(null);
@@ -52,6 +53,7 @@ function UserList({ users, onCreate, onSave, onDelete }: UserListProps) {
                     onEdit={onSave}
                     onCreate={onCreate}
                     user={userBeingEdited}
+                    checkUsername={checkUsername}
                 />
             )}
             {!userBeingEdited && (
@@ -62,6 +64,7 @@ function UserList({ users, onCreate, onSave, onDelete }: UserListProps) {
                     onEdit={onSave}
                     onCreate={onCreate}
                     user={new User()}
+                    checkUsername={checkUsername}
                 />
             )}
             <table className="min-w-full border border-gray-200 bg-white shadow-lg">

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
+import { toast } from 'react-toastify';
 
 // Definir las acciones relacionadas con la autenticación
 type AuthAction = { type: 'LOGIN', username: string, isAdmin: boolean } | { type: 'LOGOUT' };
@@ -66,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           Cookies.set('loged_in', 'true', {expires: 1 / 24});
           navigate("/users");
         } else {
+          notify("Usuario o contraseña incorrectos");
           throw new Error('Login failed');
         }
       } catch (error) {
@@ -90,7 +92,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const notify = (message: string) => {
+    toast(message, { position: "top-center" })
+}
+
   return (
+    
     <AuthContext.Provider value={{ state, login, logout }}>
       {children}
     </AuthContext.Provider>

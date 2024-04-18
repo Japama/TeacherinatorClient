@@ -1,5 +1,6 @@
 // AuthContext.tsx
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Header from '../templates/Header';
 import UserPage from "../users/UsersPage";
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -11,11 +12,11 @@ import SchedulesPage from '../schedules/SchedulesPage';
 import Footer from '../templates/Footer';
 import { useAuth } from '../AuthContext';
 
+
 function LayoutPage() {
   const { state } = useAuth();
 
   const renderRoute = (path: string, element: React.ReactElement) => {
-    console.log(state);
     return state.isAdmin ? (
       <Route path={path} element={element} />
     ) : (
