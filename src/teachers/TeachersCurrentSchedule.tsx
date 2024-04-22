@@ -3,26 +3,9 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
-import { Schedule } from '../schedules/Schedule';
-import { useAuth } from '../AuthContext';
-import { Teacher } from './Teacher';
-
-// Importa las clases Schedule y ScheduleHour si no están en el mismo archivo
-// import { Schedule, ScheduleHour } from './tu-archivo-de-clases';
-
-interface TeacherScheduleData {
-  id?: string;
-  data: {
-    teacher_id: number;
-    group_id: number;
-    course: number;
-  };
-}
 
 function TeachersCurrentSchedule() {
-  const { state } = useAuth();
   const navigate = useNavigate();
-  const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [nextScheduleHour, setNextScheduleHour] = useState<ScheduleHour | null>(null);
 
@@ -70,12 +53,7 @@ function TeachersCurrentSchedule() {
     try {
       const response = await fetchData(endpoint, { filters });
       if (response) {
-        if (response.length > 0) {
-          if (endpoint === "list_schedule_hours")
-            return response;
-          else
-            return response[0];
-        }
+        return response;
       }
       throw new Error(`No data found for ${endpoint}`);
     } catch (error) {
@@ -85,23 +63,15 @@ function TeachersCurrentSchedule() {
   };
 
 
-
   const fetchAllData = async () => {
-    const user = await fetchDataWithFilters("list_users", { "username": state.username });
-    if (!user) return;
-
-    const teacher = await fetchDataWithFilters("list_teachers", { "user_id": user.id });
-    if (!teacher) return;
-
-    const schedule = await fetchDataWithFilters("list_schedules", { "teacher_id": teacher.id });
+    const schedule = await fetchDataWithFilters("get_user_schedule", {});
     if (!schedule) return;
-
-    const scheduleHours = await fetchDataWithFilters("list_schedule_hours", { "schedule_id": schedule.id });
+    const scheduleHours = await fetchDataWithFilters("list_schedule_hours", {});
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-04-19T13:30:00'); // Año-Mes-DíaTHora:Minuto:Segundo
-    const probando = true;
+    const specificDate = new Date('2024-04-22T02:50:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const probando = false;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7; // Ajusta para que 0 sea lunes y 4 sea viernes
 
@@ -127,9 +97,10 @@ function TeachersCurrentSchedule() {
     }
     else {
       startTime.setHours(...startHour.start_time);
-      const add = currentTime <= startTime ? 0 : 1
+      const add = currentTime <= startTime ? 0 : 1;
+      const day = currentDayOfWeek >= 4 ? 0 : currentDayOfWeek + add;
       nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
-        return hour.week_day === ((currentDayOfWeek + add) % 5) && hour.n_hour === 0;
+        return hour.week_day === day && hour.n_hour === 0;
       });
     }
 

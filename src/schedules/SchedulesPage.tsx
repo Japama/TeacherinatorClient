@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Schedule } from './Schedule';
 import ScheduleList from './ScheduleList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import ScheduleDetails from './ScheduleDetails';
 import { ScheduleHour } from './ScheduleHour';
+import { useAuth } from '../AuthContext';
+import { Teacher } from '../teachers/Teacher';
+import { User } from '../users/User';
+import { Group } from '../groups/Group';
 
 interface ScheduleData {
   id?: number;
@@ -16,13 +19,16 @@ interface ScheduleData {
 }
 
 function SchedulesPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [totalSchedules, setTotalSchedules] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
-  const [scheduleHours, setScheduleHours] = useState<ScheduleHour[]>([]); 
+  const [scheduleHours, setScheduleHours] = useState<ScheduleHour[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -49,7 +55,12 @@ function SchedulesPage() {
       return data.result;
     } else {
       const errorData = await response.json();
-      throw new Error(errorData.error.message);
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
@@ -64,8 +75,72 @@ function SchedulesPage() {
         "limit": itemsPerPage === 0 ? totalSchedules : itemsPerPage
       }
     });
-    if (schedulesResponse) {
-      setSchedules(schedulesResponse);
+
+    const teachersResponse = await fetchData("list_teachers", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {
+        "order_bys": "id",
+        "offset": (currentPage - 1) * itemsPerPage,
+      }
+    });
+
+    const usersResponse = await fetchData("list_users", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {}
+    });
+
+    
+    const groupsResponse = await fetchData("list_groups", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {}
+    });
+
+    
+    if (teachersResponse && usersResponse && schedulesResponse && groupsResponse) {
+      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
+        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = usersMap.get(teacher.user_id);
+        if (user) {
+          teacher.user = new User(user);
+        }
+
+        return new Teacher(teacher);
+      });
+
+      const scheduleWithTeachers = schedulesResponse.map((schedule: Schedule) => {
+        const teacherMap = new Map(teachersWithDetails.map((teacher: Teacher) => [teacher.id, teacher]));
+        const teacher = teacherMap.get(schedule.teacher_id);
+        if (teacher) {
+          schedule.teacher = new Teacher(teacher);
+        }
+
+        return new Schedule(schedule);
+      });
+
+      const schedulesWithAllData = scheduleWithTeachers.map((schedule: Schedule) => {
+        const groupsMap = new Map(groupsResponse.map((group: Group) => [group.id, group]));
+        const group = groupsMap.get(schedule.group_id);
+        if (group) {
+          schedule.group = new Group(group);
+        }
+
+        return new Schedule(schedule);
+      });
+
+      setTeachers(teachersWithDetails);
+
+      setSchedules(schedulesWithAllData);
+
+
+
+
+
     }
   }
 
@@ -180,11 +255,11 @@ function SchedulesPage() {
   };
 
   const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
+    if (!state.isLoggedIn) {
       navigate("/login");
     }
   };
+
 
   useEffect(() => {
     checkLogin();

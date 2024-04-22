@@ -74,6 +74,7 @@ function Header() {
         {state.isAdmin && <NavItem to="/groups" label="Grupos" />}
         {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
         <NavItem to="/current" label="Tareas" />
+        <NavItem to="/checkin" label="Fichar" />
         <li className="group flex  cursor-pointer flex-col bg-rose-700 rounded-md px-4 py-2">
           <button onClick={handleClick}> Salir </button><span className="mt-[2px] h-[3px]  w-[0px] rounded-full  transition-all duration-300 group-hover:w-full"></span>
         </li>
@@ -88,6 +89,7 @@ function Header() {
             {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}
             {state.isAdmin && <DropNavItem to="/schedules" children="Horarios" />}
             <DropNavItem to="/schedules" children="Horarios" />
+            <DropNavItem to="/checkin" children="Fichar" />
             <li className="cursor-pointer  px-6 py-2 text-black dark:text-white hover:bg-sky-600 bg-red-500  rounded-lg">
               <button onClick={handleClick}> Salir </button>
             </li>

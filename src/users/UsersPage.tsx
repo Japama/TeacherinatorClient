@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { User } from './User';
 import UserList from './UserList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
+import { useAuth } from '../AuthContext';
 
 interface UserData {
   id?: number;
@@ -16,6 +16,7 @@ interface UserData {
 }
 
 function UsersPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
 
@@ -45,8 +46,13 @@ function UsersPage() {
       const data = await response.json();
       return data.result;
     } else {
-      console.error(`Error al obtener los ${method}`);
-      return null;
+      const errorData = await response.json();
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
@@ -84,9 +90,9 @@ function UsersPage() {
     await fetchAllUsers();
     await fetchUsers();
   };
+
   const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
+    if (!state.isLoggedIn) {
       navigate("/login");
     }
   };

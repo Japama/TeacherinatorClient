@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const data = await response.json();
           dispatch({ type: 'LOGIN', username: formData.username, isAdmin: data.result.is_admin });
           Cookies.set('loged_in', 'true', {expires: 1 / 24});
-          navigate("/users");
+          navigate("/checkin");
         } else {
           notify("Usuario o contraseña incorrectos");
           throw new Error('Login failed');

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Department } from './Department';
 import DepartmentList from './DepartmentList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
+import { useAuth } from '../AuthContext';
 
 interface DepartmentData {
   id?: string;
@@ -14,6 +14,7 @@ interface DepartmentData {
 }
 
 function DepartmentsPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [totalDepartments, setTotalDepartments] = useState(0);
@@ -43,7 +44,12 @@ function DepartmentsPage() {
       return data.result;
     } else {
       const errorData = await response.json();
-      throw new Error(errorData.error.message);
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
@@ -153,8 +159,7 @@ function DepartmentsPage() {
 
 
   const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
+    if (!state.isLoggedIn) {
       navigate("/login");
     }
   };

@@ -12,6 +12,7 @@ import SchedulesPage from '../schedules/SchedulesPage';
 import Footer from '../templates/Footer';
 import { useAuth } from '../AuthContext';
 import TeachersCurrentSchedule from '../teachers/TeachersCurrentSchedule';
+import TeacherCheckIn from '../teachers/TeacherCheckIn ';
 
 
 function LayoutPage() {
@@ -37,6 +38,7 @@ function LayoutPage() {
           {renderRoute("/groups", <GroupsPage />)}
           {renderRoute("/schedules", <SchedulesPage />)}
           <Route path="/current" element={<TeachersCurrentSchedule />} />
+          <Route path="/checkin" element={<TeacherCheckIn />} />
         </Routes>
       <Footer />
     </div>

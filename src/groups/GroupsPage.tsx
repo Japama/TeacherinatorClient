@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Group } from './Group';
 import GroupList from './GroupList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
+import { useAuth } from '../AuthContext';
+import { Teacher } from '../teachers/Teacher';
+import { User } from '../users/User';
 
 interface GroupData {
-  id?: string;
+  id?: number;
   data: {
     course: number;
   };
 }
 
 function GroupsPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
   const [totalGroups, setTotalGroups] = useState(0);
@@ -43,23 +46,66 @@ function GroupsPage() {
       return data.result;
     } else {
       const errorData = await response.json();
-      throw new Error(errorData.error.message);
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
   async function fetchGroups() {
-    const groupsResponse = await fetchData("list_groups", {
+    
+    const teachersResponse = await fetchData("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
-        "limit": itemsPerPage === 0 ? totalGroups : itemsPerPage
       }
     });
-    if (groupsResponse) {
-      setGroups(groupsResponse);
+
+    const usersResponse = await fetchData("list_users", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {}
+    });
+
+    if (teachersResponse && usersResponse) {
+      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
+        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = usersMap.get(teacher.user_id);
+        if (user) {
+          teacher.user = new User(user);
+        }
+
+        return new Teacher(teacher);
+      });
+
+      const groupsResponse = await fetchData("list_groups", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id",
+          "offset": (currentPage - 1) * itemsPerPage,
+          "limit": itemsPerPage === 0 ? totalGroups : itemsPerPage
+        }
+      });
+      if (groupsResponse) {
+        // Mapear los grupos con los profesores
+        const updatedGroups = groupsResponse.map((group: Group) => {
+          const teacher = teachersWithDetails.find((teacher: Teacher) => teacher.user_id === group.tutor_id);
+          if (teacher) {
+            group.tutor_name = teacher.user.username;
+          }
+          return group;
+        });
+        setGroups(updatedGroups);
+      }
     }
   }
 
@@ -151,10 +197,8 @@ function GroupsPage() {
     }
   };
 
-
   const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
+    if (!state.isLoggedIn) {
       navigate("/login");
     }
   };

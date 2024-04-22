@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import TeacherList from './TeacherList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Teacher } from './Teacher';
 import { Department } from '../departments/Department';
 import { User } from '../users/User';
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
+import { useAuth } from '../AuthContext';
 
 interface TeacherData {
   id?: string;
@@ -21,6 +21,7 @@ interface TeacherData {
 }
 
 function TeachersPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [allTeachers, setAllTeachers] = useState<Teacher[]>([]);
@@ -52,8 +53,13 @@ function TeachersPage() {
       const data = await response.json();
       return data.result;
     } else {
-      console.error(`Error al obtener los ${method}`);
-      return null;
+      const errorData = await response.json();
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
@@ -226,35 +232,33 @@ function TeachersPage() {
     }
   };
 
-
   const checkUsername = async (username: String) => {
     const method = "check_duplicate_username";
     const params = { data: username };
     return await fetchData(method, params);
   };
 
-
-  const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
-      navigate("/login");
-    }
-    return true;
-  };
-
   useEffect(() => {
-    if (checkLogin()) {
-      const checkPage = () => {
-        if (itemsPerPage === 0 || itemsPerPage > allTeachers.length)
-          setCurrentPage(1);
-
-        if ((itemsPerPage * currentPage) >= allTeachers.length + itemsPerPage && currentPage > 1)
-          setCurrentPage(currentPage - 1);
+    const checkLogin = () => {
+      if (!state.isLoggedIn) {
+        navigate("/login");
       }
+    };
 
-      fetchAllData();
-      checkPage();
-    }
+
+
+    const checkPage = () => {
+      if (itemsPerPage === 0 || itemsPerPage > allTeachers.length)
+        setCurrentPage(1);
+
+      if ((itemsPerPage * currentPage) >= allTeachers.length + itemsPerPage && currentPage > 1)
+        setCurrentPage(currentPage - 1);
+    };
+
+
+    checkLogin()
+    fetchAllData();
+    checkPage();
   }, [currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(allTeachers.length / itemsPerPage);

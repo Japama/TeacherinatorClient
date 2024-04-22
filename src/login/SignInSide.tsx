@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext'; // Asumiendo que tienes una función `useAuth` para obtener el contexto de autenticación
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
 import { ToastContainer, toast } from 'react-toastify';
 
 interface SignInData {
@@ -10,6 +9,7 @@ interface SignInData {
 }
 
 export default function SignInSide() {
+    const { state } = useAuth();
     // const authState = useAuth().state;
     const { login } = useAuth(); // Obtén la función de inicio de sesión del contexto de autenticación
     const [formData, setFormData] = useState<SignInData>({
@@ -42,14 +42,9 @@ export default function SignInSide() {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            const miCookie = Cookies.get('loged_in');
-            if (miCookie === "true") {
-                navigate("/index");
-            }
-        };
-
-        fetchData();
+        if(state.isLoggedIn){
+            navigate("/index");
+        }
     }, []); // El array vacío [] significa que este efecto se ejecutará una vez, justo después de que el componente se monte.
 
     const notify = (message: string) => {
@@ -83,9 +78,10 @@ export default function SignInSide() {
                         </div>
                     </div>
                     <div className="mb-6">
-                        <button className="w-full py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">Login</button>
+                        <input type='submit' value='Login' className="w-full py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700" />
                     </div>
                 </form>
+
             </div>
         </div>
 
