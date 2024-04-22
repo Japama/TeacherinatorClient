@@ -1,5 +1,5 @@
 export class User {
-    id: string | undefined;
+    id: number | undefined;
     username: string = '';
     isadmin: boolean = false;
     pwd: string = '';

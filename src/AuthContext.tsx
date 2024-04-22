@@ -2,14 +2,16 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
+import { toast } from 'react-toastify';
 
 // Definir las acciones relacionadas con la autenticación
-type AuthAction = { type: 'LOGIN', username: string } | { type: 'LOGOUT' };
+type AuthAction = { type: 'LOGIN', username: string, isAdmin: boolean } | { type: 'LOGOUT' };
 
 // Reducer para manejar el estado de autenticación
 interface AuthState {
   isLoggedIn: boolean;
   username: string | null;
+  isAdmin: boolean;
 }
 
 interface LoginForm {
@@ -21,21 +23,19 @@ interface LogoutForm {
   logoff: boolean;
 }
 
-
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'LOGIN':
-      return { ...state, isLoggedIn: true, username: action.username };
+      return { ...state, isLoggedIn: true, username: action.username, isAdmin: action.isAdmin };
     case 'LOGOUT':
-      return { ...state, isLoggedIn: false, username: null };
+      return { ...state, isLoggedIn: false, username: null, isAdmin: false };
     default:
       return state;
   }
 };
 
 // Estado inicial
-const initialState: AuthState = { isLoggedIn: false, username: null};
-
+const initialState: AuthState = { isLoggedIn: false, username: null, isAdmin: false};
 
 // Crear el contexto de autenticación
 const AuthContext = createContext<{
@@ -47,11 +47,9 @@ const AuthContext = createContext<{
 // Proveedor de autenticación
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-
   const navigate = useNavigate();
 
   const login = async (formData: LoginForm) => {
-    console.log(state.isLoggedIn)
     if(!state.isLoggedIn){
       try {
         const response = await fetch('http://127.0.0.1:8081/api/login', {
@@ -64,32 +62,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
 
         if (response.ok) {
-          // Lógica de inicio de sesión exitoso aquí
-          // Puedes actualizar el estado del usuario autenticado, por ejemplo
-          dispatch({ type: 'LOGIN', username: formData.username });
-          Cookies.set('loged_in', 'true', {expires: 1 / 24}); // La cookie expira en 1 hora
-          navigate("/users");
-
+          const data = await response.json();
+          dispatch({ type: 'LOGIN', username: formData.username, isAdmin: data.result.is_admin });
+          Cookies.set('loged_in', 'true', {expires: 1 / 24});
+          navigate("/checkin");
         } else {
-          // Lógica para manejar un inicio de sesión fallido
-          console.error('Inicio de sesión fallido');
-          dispatch({ type: 'LOGOUT' }); // O cualquier otra lógica que necesites
+          notify("Usuario o contraseña incorrectos");
           throw new Error('Login failed');
         }
       } catch (error) {
-        // Lógica para manejar errores de red u otros errores
         console.error('Error al iniciar sesión', error);
-        dispatch({ type: 'LOGOUT' }); // O cualquier otra lógica que necesites
+        dispatch({ type: 'LOGOUT' });
       }
     }
   };
 
   const logout = async () => {
-    let logoutForm : LogoutForm = {
-      logoff: true
-    };
-
-
+    let logoutForm : LogoutForm = { logoff: true };
     const response = await fetch('http://127.0.0.1:8081/api/logoff', {
       method: 'POST',
       headers: {
@@ -99,13 +88,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     if (response.ok) {
-      // Lógica de inicio de sesión exitoso aquí
-      // Puedes actualizar el estado del usuario autenticado, por ejemplo
       dispatch({ type: 'LOGOUT' });
     }
   };
 
+  const notify = (message: string) => {
+    toast(message, { position: "top-center" })
+}
+
   return (
+    
     <AuthContext.Provider value={{ state, login, logout }}>
       {children}
     </AuthContext.Provider>

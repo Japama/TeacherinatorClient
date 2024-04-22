@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Department } from './Department';
-import DepartmentList from './DepartmentList';
+import { Group } from './Group';
+import GroupList from './GroupList';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
+import { Teacher } from '../teachers/Teacher';
+import { User } from '../users/User';
 
-interface DepartmentData {
-  id?: string;
+interface GroupData {
+  id?: number;
   data: {
-    name: string;
+    course: number;
   };
 }
 
-function DepartmentsPage() {
+function GroupsPage() {
   const { state } = useAuth();
   const navigate = useNavigate();
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [totalDepartments, setTotalDepartments] = useState(0);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [totalGroups, setTotalGroups] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -53,24 +55,62 @@ function DepartmentsPage() {
     }
   };
 
-  async function fetchDepartments() {
-    const departmentsResponse = await fetchData("list_departments", {
+  async function fetchGroups() {
+    
+    const teachersResponse = await fetchData("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
-        "limit": itemsPerPage === 0 ? totalDepartments : itemsPerPage
       }
     });
-    if (departmentsResponse) {
-      setDepartments(departmentsResponse);
+
+    const usersResponse = await fetchData("list_users", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {}
+    });
+
+    if (teachersResponse && usersResponse) {
+      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
+        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = usersMap.get(teacher.user_id);
+        if (user) {
+          teacher.user = new User(user);
+        }
+
+        return new Teacher(teacher);
+      });
+
+      const groupsResponse = await fetchData("list_groups", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id",
+          "offset": (currentPage - 1) * itemsPerPage,
+          "limit": itemsPerPage === 0 ? totalGroups : itemsPerPage
+        }
+      });
+      if (groupsResponse) {
+        // Mapear los grupos con los profesores
+        const updatedGroups = groupsResponse.map((group: Group) => {
+          const teacher = teachersWithDetails.find((teacher: Teacher) => teacher.user_id === group.tutor_id);
+          if (teacher) {
+            group.tutor_name = teacher.user.username;
+          }
+          return group;
+        });
+        setGroups(updatedGroups);
+      }
     }
   }
 
-  async function fetchAllDepartments() {
-    const allDepartmentss = await fetchData("list_departments", {
+  async function fetchAllGroups() {
+    const allGroupss = await fetchData("list_groups", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -79,58 +119,58 @@ function DepartmentsPage() {
       }
     });
 
-    if (allDepartmentss) {
-      setTotalDepartments(allDepartmentss.length);
+    if (allGroupss) {
+      setTotalGroups(allGroupss.length);
     }
   }
 
   const fetchAllData = async () => {
-    await fetchAllDepartments();
-    await fetchDepartments();
+    await fetchAllGroups();
+    await fetchGroups();
   }
 
-  const handleCreateOrUpdateDepartment = async (department: Department) => {
-    const update = department.id ? true : false;
-    const method = update ? "update_department" : "create_department";
-    const data: DepartmentData = {
+  const handleCreateOrUpdateGroup = async (group: Group) => {
+    const update = group.id ? true : false;
+    const method = update ? "update_group" : "create_group";
+    const data: GroupData = {
       data: {
-        name: department.name
+        course: group.course
       }
     };
 
     if (update) {
-      data.id = department.id;
+      data.id = group.id;
     }
 
     const responseData = await fetchData(method, data);
 
     if (!responseData.id ? true : false) {
-      console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
+      console.error(`Error al ${method === "update_group" ? "actualizar" : "crear"} el departamento`);
     }
 
     if (update) {
-      let updatedDepartments = departments.map((u: Department) => {
-        return u.id === department.id ? department : u;
+      let updatedGroups = groups.map((u: Group) => {
+        return u.id === group.id ? group : u;
       });
-      setDepartments(updatedDepartments);
+      setGroups(updatedGroups);
     } else {
-      if (departments.length === itemsPerPage) {
+      if (groups.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
       }
       fetchAllData();
     }
   };
 
-  const handleDeleteDepartment = async (department: Department) => {
+  const handleDeleteGroup = async (group: Group) => {
     try {
 
-      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+      if (await fetchData("count_teachers_by_group", { "id": group.id }) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
       }
 
-      await fetchData("delete_department", { "id": department.id });
-      if (departments.length === 1) {
+      await fetchData("delete_group", { "id": group.id });
+      if (groups.length === 1) {
         setCurrentPage(currentPage - 1);
       }
       fetchAllData();
@@ -148,15 +188,14 @@ function DepartmentsPage() {
   const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(event.target.value);
     setItemsPerPage(n);
-    if (n === 0 || n > totalDepartments)
+    if (n === 0 || n > totalGroups)
       setCurrentPage(1);
 
-    if ((n * currentPage) > totalDepartments + n && currentPage > 1) {
-      const pagina = Math.ceil(totalDepartments / n);
+    if ((n * currentPage) > totalGroups + n && currentPage > 1) {
+      const pagina = Math.ceil(totalGroups / n);
       setCurrentPage(pagina);
     }
   };
-
 
   const checkLogin = () => {
     if (!state.isLoggedIn) {
@@ -169,7 +208,7 @@ function DepartmentsPage() {
     fetchAllData();
   }, [currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(totalDepartments / itemsPerPage);
+  const totalPages = Math.ceil(totalGroups / itemsPerPage);
   const paginationRange = 9;
   const halfPaginationRange = Math.floor(paginationRange / 2);
   const startPage = Math.max(1, currentPage - halfPaginationRange);
@@ -178,9 +217,9 @@ function DepartmentsPage() {
   return (
     <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
-        <h1>Departamentos</h1>
+        <h1>Grupos</h1>
       </div>
-      <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />
+      <GroupList onCreate={handleCreateOrUpdateGroup} onSave={handleCreateOrUpdateGroup} groups={groups} onDelete={handleDeleteGroup} />
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}
@@ -194,4 +233,4 @@ function DepartmentsPage() {
   );
 }
 
-export default DepartmentsPage;
+export default GroupsPage;

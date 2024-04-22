@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { User } from './User';
 import UserList from './UserList';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
+import { useAuth } from '../AuthContext';
 
 interface UserData {
-  id?: string;
+  id?: number;
   data: {
     username: string;
     isadmin: boolean;
@@ -16,6 +16,7 @@ interface UserData {
 }
 
 function UsersPage() {
+  const { state } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
 
@@ -45,8 +46,13 @@ function UsersPage() {
       const data = await response.json();
       return data.result;
     } else {
-      console.error(`Error al obtener los ${method}`);
-      return null;
+      const errorData = await response.json();
+      if (errorData.error.message === 'NO_AUTH') {
+        state.isLoggedIn = false;
+        navigate("/login");
+      } else {
+        throw new Error(errorData.error.message);
+      }
     }
   };
 
@@ -84,9 +90,9 @@ function UsersPage() {
     await fetchAllUsers();
     await fetchUsers();
   };
+
   const checkLogin = () => {
-    const miCookie = Cookies.get('loged_in');
-    if (miCookie !== "true") {
+    if (!state.isLoggedIn) {
       navigate("/login");
     }
   };
@@ -157,6 +163,12 @@ function UsersPage() {
     }
   };
 
+  const checkUsername = async (username: String) => {
+    const method = "check_duplicate_username";
+    const params = { data: username };
+    return await fetchData(method, params);
+  };
+
   useEffect(() => {
     checkLogin();
     const checkPage = () => {
@@ -183,7 +195,7 @@ function UsersPage() {
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} />
+      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
     </div>
   );

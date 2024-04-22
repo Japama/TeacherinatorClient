@@ -3,7 +3,7 @@ import { User } from "../users/User";
 
 export class Teacher {
   id: string | undefined;
-  user_id: string = '';
+  user_id: number = 0;
   user: User | undefined;
   active: boolean = false;
   department_id: string = '';
