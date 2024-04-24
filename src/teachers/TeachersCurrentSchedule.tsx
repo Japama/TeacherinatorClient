@@ -3,11 +3,13 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
+import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
 
 function TeachersCurrentSchedule() {
   const navigate = useNavigate();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [nextScheduleHour, setNextScheduleHour] = useState<ScheduleHour | null>(null);
+  const [centerScheduleHours, setCenterScheduleHours] = useState<[CenterScheduleHour] | null>(null);
 
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
@@ -64,49 +66,77 @@ function TeachersCurrentSchedule() {
 
 
   const fetchAllData = async () => {
+
+    const centerScheduleHours: [CenterScheduleHour] = await fetchDataWithFilters("list_center_schedule_hours", {
+      "filters": {
+        // "id": { "$gte": 1000 }
+      },
+      "list_options": {
+        "order_bys": "n_hour",
+      }
+    });
+    if (!centerScheduleHours) return;
+    setCenterScheduleHours(centerScheduleHours);
     const schedule = await fetchDataWithFilters("get_user_schedule", {});
     if (!schedule) return;
     const scheduleHours = await fetchDataWithFilters("list_schedule_hours", {});
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-04-22T02:50:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const specificDate = new Date('2024-04-29T19:56:00'); // Año-Mes-DíaTHora:Minuto:Segundo
     const probando = false;
     const currentTime = probando ? specificDate : new Date();
-    const currentDayOfWeek = (currentTime.getDay() + 6) % 7; // Ajusta para que 0 sea lunes y 4 sea viernes
-
-    const startHour: ScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
-      return hour.n_hour === 0;
-    });
+    const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
 
     // Filtra los horarios para encontrar el horario actual y el próximo
     const startTime = new Date(currentTime);
     const endTime = new Date(currentTime);
 
-    const currentScheduleHour: ScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+    const current_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
       startTime.setHours(...hour.start_time)
       endTime.setHours(...hour.end_time);
       return hour.week_day === currentDayOfWeek && startTime <= currentTime && currentTime <= endTime;
     });
 
+    let currentScheduleHour: ScheduleHour;
     let nextScheduleHour;
-    if (currentScheduleHour) {
-      nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
-        return hour.week_day >= currentDayOfWeek && hour.n_hour == currentScheduleHour.n_hour + 1;
+    if (current_hour) {
+      currentScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+        return hour.week_day === currentDayOfWeek && current_hour.n_hour === hour.n_hour;
       });
+
+      if (currentScheduleHour) {
+        setCurrentScheduleHour(currentScheduleHour);
+        nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+          return hour.week_day >= currentDayOfWeek && hour.n_hour === currentScheduleHour?.n_hour + 1;
+        });
+      }
+      else {
+        const add = current_hour.n_hour >= (centerScheduleHours.length - 1) ? 0 : 1;
+        const day = currentDayOfWeek >= 4 ? 0 : currentDayOfWeek + add;
+        nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+          return hour.week_day === day && hour.n_hour === 0;
+        });
+      }
     }
     else {
-      startTime.setHours(...startHour.start_time);
-      const add = currentTime <= startTime ? 0 : 1;
-      const day = currentDayOfWeek >= 4 ? 0 : currentDayOfWeek + add;
-      nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
-        return hour.week_day === day && hour.n_hour === 0;
-      });
+      const firstClassTime = new Date();
+      firstClassTime.setHours(...centerScheduleHours[0].start_time)
+      if (currentTime < firstClassTime) {
+        nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+          return hour.week_day === currentDayOfWeek && hour.n_hour === 0;
+        });
+      } else {
+        const day = currentDayOfWeek >= 4 ? 0 : currentDayOfWeek + 1;
+        nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
+          return hour.week_day === day && hour.n_hour === 0;
+        });
+      }
     }
 
     // Actualiza el estado con el horario actual y el próximo
-    setCurrentScheduleHour(currentScheduleHour);
     setNextScheduleHour(nextScheduleHour);
+
   };
 
   const formatTime = (timeArray: number[]) => {
@@ -129,8 +159,8 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[currentScheduleHour.week_day]}</p>
           <p><span className="font-bold">Asignatura:</span> {currentScheduleHour.subject_name}</p>
           <p><span className="font-bold">Aula:</span> {currentScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {formatTime(currentScheduleHour.start_time)}</p>
-          <p><span className="font-bold">Hora de fin:</span> {formatTime(currentScheduleHour.end_time)}</p>
+          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].end_time) : ''}</p>
         </div>
       )}
       {nextScheduleHour && (
@@ -139,8 +169,8 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[nextScheduleHour.week_day]}</p>
           <p><span className="font-bold">Asignatura:</span> {nextScheduleHour.subject_name}</p>
           <p><span className="font-bold">Aula:</span> {nextScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {formatTime(nextScheduleHour.start_time)}</p>
-          <p><span className="font-bold">Hora de fin:</span> {formatTime(nextScheduleHour.end_time)}</p>
+          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].end_time) : ''}</p>
         </div>
       )}
     </div>
