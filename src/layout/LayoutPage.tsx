@@ -1,24 +1,47 @@
-import React, {useEffect, useState} from 'react';
-import Header from "../templates/Header";
-import Footer from "../templates/Footer";
-import {Route, Routes} from "react-router-dom";
-import SignInSide from "../login/SignInSide";
-import ActivitiesPage from "../activities/ActivitiesPage";
-import ProjectsPage from "../projects/ProjectsPage";
+// AuthContext.tsx
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Header from '../templates/Header';
 import UserPage from "../users/UsersPage";
+import { Navigate, Route, Routes } from 'react-router-dom';
 import IndexPage from '../index/IndexPage';
+import DepartmentsPage from '../departments/DepartmentsPage';
+import TeachersPage from '../teachers/TeachersPage';
+import GroupsPage from '../groups/GroupsPage';
+import SchedulesPage from '../schedules/SchedulesPage';
+import Footer from '../templates/Footer';
+import { useAuth } from '../AuthContext';
+import TeachersCurrentSchedule from '../teachers/TeachersCurrentSchedule';
+import TeacherCheckIn from '../teachers/TeacherCheckIn ';
+
 
 function LayoutPage() {
-return (
-    <>
-    <Header />
-    <Routes>
-        <Route path="/index" element={<IndexPage/>}/>
-        <Route path="/activities" element={<ActivitiesPage/>}/>
-        <Route path="/users" element={<UserPage/>}/>
-    </Routes>
-    <Footer />
-    </>
+  const { state } = useAuth();
+
+  const renderRoute = (path: string, element: React.ReactElement) => {
+    return state.isAdmin ? (
+      <Route path={path} element={element} />
+    ) : (
+      <Route path={path} element={<Navigate to="/login" replace />} />
+    );
+  };
+
+  return (
+    <div className="">
+      <Header />
+      <ToastContainer />
+        <Routes>
+          <Route path="/index" element={<IndexPage />} />
+          {renderRoute("/departments", <DepartmentsPage />)}
+          {renderRoute("/teachers", <TeachersPage />)}
+          {renderRoute("/users", <UserPage />)}
+          {renderRoute("/groups", <GroupsPage />)}
+          {renderRoute("/schedules", <SchedulesPage />)}
+          <Route path="/current" element={<TeachersCurrentSchedule />} />
+          <Route path="/checkin" element={<TeacherCheckIn />} />
+        </Routes>
+      <Footer />
+    </div>
   );
 }
 

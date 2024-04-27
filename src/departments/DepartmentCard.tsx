@@ -1,29 +1,31 @@
-import { User } from './User';
+import { Department } from './Department';
+import React, { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
 // import Modal from './Modal';
 
-interface UserCardProps {
-    user: User;
-    onEdit: (user: User) => void;
-    onDelete: (user: User) => void;
+interface DepartmentCardProps {
+    department: Department;
+    onEdit: (department: Department) => void;
+    onDelete: (department: Department) => void;
 }
 
-function UserCard(props: UserCardProps) {
-    const { user, onEdit } = props;
+function DepartmentCard(props: DepartmentCardProps) {
+    const { department, onEdit, onDelete } = props;
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleEditClick = () => {
-        onEdit(user);
+        onEdit(department);
     };
 
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar este usuario? Si es docente, este se borrará también junto a sus horarios',
+            message: '¿Seguro que quieres eliminar este departamento?',
             buttons: [
                 {
                     label: 'Sí',
-                    onClick: () => props.onDelete(user)
+                    onClick: () => props.onDelete(department)
                 },
                 {
                     label: 'No',
@@ -32,16 +34,21 @@ function UserCard(props: UserCardProps) {
         });
     };
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+
     return (
         <>
+            {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} department={department} /> */}
             <tr className="h-[70px] border-b bg-[#484D58] text-[#FFFFFF]">
                 <td className="px-6 py-4 text-start">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                 </td>
                 <td className="px-6 py-4 text-start">
-                    {user.username}
+                    {department.name}
                 </td>
-                <td className="px-6 py-4 text-start "> {user.isadmin ? '✔️' : '❌'} </td>
                 <td className="px-6 py-4 text-start">
                     <button onClick={handleEditClick} className="flex items-center rounded-full bg-blue-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-blue-700">
                         Editar
@@ -58,4 +65,4 @@ function UserCard(props: UserCardProps) {
     );
 }
 
-export default UserCard;
+export default DepartmentCard;

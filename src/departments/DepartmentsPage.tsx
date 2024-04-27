@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { User } from './User';
-import UserList from './UserList';
+import { Department } from './Department';
+import DepartmentList from './DepartmentList';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
 
-interface UserData {
-  id?: number;
+interface DepartmentData {
+  id?: string;
   data: {
-    username: string;
-    isadmin: boolean;
-    pwd: string;
+    name: string;
   };
 }
 
-function UsersPage() {
+function DepartmentsPage() {
   const { state } = useAuth();
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
-
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [totalDepartments, setTotalDepartments] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -56,24 +53,24 @@ function UsersPage() {
     }
   };
 
-  async function fetchUsers() {
-    const usersResponse = await fetchData("list_users", {
+  async function fetchDepartments() {
+    const departmentsResponse = await fetchData("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
-        "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
+        "limit": itemsPerPage === 0 ? totalDepartments : itemsPerPage
       }
     });
-    if (usersResponse) {
-      setUsers(usersResponse);
+    if (departmentsResponse) {
+      setDepartments(departmentsResponse);
     }
   }
 
-  async function fetchAllUsers() {
-    const allUsers = await fetchData("list_users", {
+  async function fetchAllDepartments() {
+    const allDepartmentss = await fetchData("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -81,61 +78,59 @@ function UsersPage() {
         "order_bys": "id"
       }
     });
-    if (allUsers) {
-      setTotalUsers(allUsers.length);
+
+    if (allDepartmentss) {
+      setTotalDepartments(allDepartmentss.length);
     }
   }
 
   const fetchAllData = async () => {
-    await fetchAllUsers();
-    await fetchUsers();
-  };
+    await fetchAllDepartments();
+    await fetchDepartments();
+  }
 
-  const checkLogin = () => {
-    if (!state.isLoggedIn) {
-      navigate("/login");
-    }
-  };
-
-  const handleCreateOrUpdateUser = async (user: User) => {
-    const update = user.id ? true : false;
-    const method = update ? "update_user_pwd" : "create_user";
-    const data: UserData = {
+  const handleCreateOrUpdateDepartment = async (department: Department) => {
+    const update = department.id ? true : false;
+    const method = update ? "update_department" : "create_department";
+    const data: DepartmentData = {
       data: {
-        username: user.username,
-        isadmin: user.isadmin,
-        pwd: user.pwd
+        name: department.name
       }
     };
 
     if (update) {
-      data.id = user.id;
+      data.id = department.id;
     }
 
     const responseData = await fetchData(method, data);
 
     if (!responseData.id ? true : false) {
-      console.error(`Error al ${method === "update_user_pwd" ? "actualizar" : "crear"} el usuario`);
+      console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
     }
 
     if (update) {
-      let updatedUsers = users.map((u: User) => {
-        return u.id === user.id ? user : u;
+      let updatedDepartments = departments.map((u: Department) => {
+        return u.id === department.id ? department : u;
       });
-      setUsers(updatedUsers);
+      setDepartments(updatedDepartments);
     } else {
-      if (users.length === itemsPerPage) {
+      if (departments.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
       }
       fetchAllData();
     }
   };
 
-  const handleDeleteUser = async (user: User) => {
+  const handleDeleteDepartment = async (department: Department) => {
     try {
-      await fetchData("delete_user", { "id": user.id });
 
-      if (users.length === 1) {
+      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+        notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
+        return;
+      }
+
+      await fetchData("delete_department", { "id": department.id });
+      if (departments.length === 1) {
         setCurrentPage(currentPage - 1);
       }
       fetchAllData();
@@ -143,7 +138,6 @@ function UsersPage() {
       if (error instanceof Error) {
         notify(error.message);
       }
-      notify("No se ha podido borrar el usuario");
     }
   };
 
@@ -154,51 +148,50 @@ function UsersPage() {
   const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(event.target.value);
     setItemsPerPage(n);
-    if (n === 0 || n > totalUsers)
+    if (n === 0 || n > totalDepartments)
       setCurrentPage(1);
 
-    if ((n * currentPage) > totalUsers + n && currentPage > 1) {
-      const pagina = Math.ceil(totalUsers / n);
+    if ((n * currentPage) > totalDepartments + n && currentPage > 1) {
+      const pagina = Math.ceil(totalDepartments / n);
       setCurrentPage(pagina);
     }
   };
 
-  const checkUsername = async (username: String) => {
-    const method = "check_duplicate_username";
-    const params = { data: username };
-    return await fetchData(method, params);
+
+  const checkLogin = () => {
+    if (!state.isLoggedIn) {
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
     checkLogin();
-    const checkPage = () => {
-
-      if (itemsPerPage === 0 || itemsPerPage > totalUsers)
-        setCurrentPage(1);
-
-      if ((itemsPerPage * currentPage) >= totalUsers + itemsPerPage && currentPage > 1)
-        setCurrentPage(currentPage - 1);
-    }
-
     fetchAllData();
-    checkPage();
   }, [currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(totalUsers / itemsPerPage);
+  const totalPages = Math.ceil(totalDepartments / itemsPerPage);
   const paginationRange = 9;
   const halfPaginationRange = Math.floor(paginationRange / 2);
   const startPage = Math.max(1, currentPage - halfPaginationRange);
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="flex-grow items-center justify-center bg-gray-500 w-10/12 mx-auto">
+    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
-        <h1>Usuarios</h1>
+        <h1>Departamentos</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} />
-      <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
+      <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />
+      <Pagination
+        itemsPerPage={itemsPerPage}
+        handleItemsPerPageChange={handleItemsPerPageChange}
+        currentPage={currentPage}
+        handlePagination={handlePagination}
+        endPage={endPage}
+        startPage={startPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }
 
-export default UsersPage;
+export default DepartmentsPage;

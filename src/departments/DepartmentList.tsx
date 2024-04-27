@@ -1,39 +1,39 @@
 import React, { useState } from 'react';
-import { User } from './User';
-import UserCard from './UserCard';
-import UserForm from './UserForm';
+import DepartmentCard from './DepartmentCard';
+import { Department } from './Department';
+import DepartmentForm from './DepartmentForm';
 
-interface UserListProps {
-    users: User[];
-    onCreate: (teacher: User) => void;
-    onSave: (user: User) => void;
-    onDelete: (user: User) => void;
-    checkUsername: (username: string) => Promise<boolean>;
+interface DepartmentListProps {
+    departments: Department[];
+    onCreate: (teacher: Department) => void;
+    onSave: (department: Department) => void;
+    onDelete: (department: Department) => void;
 }
 
-function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserListProps) {
+function DepartmentList({ departments, onCreate, onSave, onDelete }: DepartmentListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreate, setisCreate] = useState(false);
-    const [userBeingEdited, setUserBeingEdited] = useState<User | null>(null);
+    const [departmentBeingEdited, setDepartmentBeingEdited] = useState<Department | null>(null);
+    const [departmentBeingCreated, setDepartmentBeingCreated] = useState<Department | null>(null);
 
-    const handleEdit = (user: User) => {
-        setUserBeingEdited(user);
+    const handleEdit = (department: Department) => {
+        setDepartmentBeingEdited(department);
         setisCreate(false);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setUserBeingEdited(null);
+        setDepartmentBeingEdited(null);
     };
 
-    const items = users.map(user => (
-        <UserCard key={user.id} user={user} onEdit={handleEdit} onDelete={onDelete} />
+    const items = departments.map(department => (
+        <DepartmentCard key={department.id} department={department} onEdit={handleEdit} onDelete={onDelete} />
     ));
 
 
     const openForm = () => {
-        setUserBeingEdited(new User());
+        setDepartmentBeingEdited(new Department);
         setisCreate(true);
         setIsModalOpen(true);
     };
@@ -43,38 +43,38 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
             <button
                 onClick={openForm}
                 className={`mb-4 items-center rounded-full bg-green-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-green-700`}>
-                Crear Usuario
+                Crear departamento
             </button>
-            {userBeingEdited && (
-                <UserForm
+            {departmentBeingEdited && (
+                <DepartmentForm
                     isOpen={isModalOpen}
                     isCreate={isCreate}
                     onClose={closeModal}
                     onEdit={onSave}
                     onCreate={onCreate}
-                    user={userBeingEdited}
-                    checkUsername={checkUsername}
+                    department={departmentBeingEdited}
+                    departments={departments}
                 />
             )}
-            {!userBeingEdited && (
-                <UserForm
+            {departmentBeingCreated && (
+                <DepartmentForm
                     isOpen={isModalOpen}
                     isCreate={isCreate}
                     onClose={closeModal}
                     onEdit={onSave}
                     onCreate={onCreate}
-                    user={new User()}
-                    checkUsername={checkUsername}
+                    department={departmentBeingCreated}
+                    departments={departments}
                 />
             )}
             <table className="min-w-full border border-gray-200 bg-white shadow-lg">
+                {/* Table Header */}
                 <thead>
                     <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">
                         <th className="w-[50px] px-6 py-4 text-start ">
                             <input type="checkbox" id="myCheckbox" className="flex h-6 w-6 items-center rounded-full  border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                         </th>
                         <th className="px-6 py-4 text-start">Nombre</th>
-                        <th className="px-6 py-4 text-start">Es administrador</th>
                         <th className="px-6 py-4 text-start">Editar</th>
                         <th className="px-6 py-4 text-start">Eliminar</th>
                     </tr>
@@ -91,4 +91,4 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
 
 }
 
-export default UserList;
+export default DepartmentList;
