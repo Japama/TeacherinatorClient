@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
                     <React.Fragment key={index}>
                       {index === 0 && (
                         <Text style={[styles.cell, { fontWeight: 'bold' }]}>
-                          {hour ? `${formatTime(hour.start_time)} - ${formatTime(hour.end_time)}` : ' '}
+                          {/* {hour ? `${formatTime(hour.start_time)} - ${formatTime(hour.end_time)}` : ' '} */}
                         </Text>
                       )}
                       <Text style={styles.cell}>

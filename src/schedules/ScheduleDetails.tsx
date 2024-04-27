@@ -3,15 +3,17 @@ import ReactDOMServer from 'react-dom/server'; // Importar ReactDOMServer
 import { Schedule } from './Schedule';
 import { ScheduleHour } from './ScheduleHour';
 import PDFComponent from '../templates/PDFComponent';
+import { CenterScheduleHour } from './CenterScheduleHour';
 
 interface ScheduleDetailsProps {
   isOpen: boolean;
   onClose: () => void;
   schedule: Schedule;
   scheduleHours: ScheduleHour[];
+  centerScheduleHours: CenterScheduleHour[];
 }
 
-const ScheduleDetails = ({ isOpen, onClose, schedule, scheduleHours }: ScheduleDetailsProps) => {
+const ScheduleDetails = ({ isOpen, onClose, schedule, scheduleHours, centerScheduleHours }: ScheduleDetailsProps) => {
   const formatTime = (timeArray: number[]): string => {
     const [hour, minute] = timeArray;
     return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -41,13 +43,10 @@ const ScheduleDetails = ({ isOpen, onClose, schedule, scheduleHours }: ScheduleD
     URL.revokeObjectURL(url);
   };
 
-  // Filter scheduleHours for only registered hours
-  const registeredHours = scheduleHours.filter(hour => hour.start_time && hour.end_time);
-
   // Organize scheduleHours by n_hour and then by weekday
   const hourWeekdayHours: { [key: number]: ScheduleHour[] } = {};
 
-  registeredHours.forEach(hour => {
+  scheduleHours.forEach(hour => {
     if (!hourWeekdayHours[hour.n_hour]) {
       hourWeekdayHours[hour.n_hour] = [];
     }
@@ -55,11 +54,11 @@ const ScheduleDetails = ({ isOpen, onClose, schedule, scheduleHours }: ScheduleD
     hourWeekdayHours[hour.n_hour].push(hour);
   });
 
-  // Get the highest registered hour
-  const maxHour = Math.max(...registeredHours.map(hour => hour.n_hour));
+  const allHours = centerScheduleHours.length > 0
+    ? Array.from({ length: centerScheduleHours[centerScheduleHours.length - 1].n_hour }, (_, i) => i)
+    : [];
 
-  // Generate a list of all hours up to the highest registered hour
-  const allHours = Array.from({ length: maxHour + 1 }, (_, i) => i);
+  const maxNHour = centerScheduleHours.length > 0 ? centerScheduleHours[centerScheduleHours.length - 1].n_hour : 0;
 
   // Add or remove the 'no-scroll' class to the body when isOpen changes
   useEffect(() => {
@@ -87,15 +86,16 @@ const ScheduleDetails = ({ isOpen, onClose, schedule, scheduleHours }: ScheduleD
                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].map((day, index) => {
                       const hour = hourWeekdayHours[n_hour] && hourWeekdayHours[n_hour][index];
                       return (
-                        <React.Fragment key={index}>
+                        <React.Fragment key={n_hour + '_' + index}>
                           {index === 0 && (
                             <td className="border border-blue-500 px-4 py-2">
-                              {hour ? `${formatTime(hour.start_time)} - ${formatTime(hour.end_time)}` : ' '}
+                              {hour ? `${formatTime(centerScheduleHours[n_hour * maxNHour].start_time)} - ${formatTime(centerScheduleHours[n_hour * maxNHour].end_time)}` : ' '}
                             </td>
-                          )}
-                          <td className="border border-blue-500 px-4 py-2">
-                            {hour ? `${hour.subject_name} (${hour.classroom_name})` : ' '}
-                          </td>
+                          )} {
+                            <td className="border border-blue-500 px-4 py-2">
+                              {hour ? `${hour.subject_name} (${hour.classroom_name})` : ' '}
+                            </td>
+                          }
                         </React.Fragment>
                       );
                     })}

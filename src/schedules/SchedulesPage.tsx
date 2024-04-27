@@ -10,6 +10,7 @@ import { useAuth } from '../AuthContext';
 import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { Group } from '../groups/Group';
+import { CenterScheduleHour } from './CenterScheduleHour';
 
 interface ScheduleData {
   id?: number;
@@ -22,13 +23,12 @@ function SchedulesPage() {
   const { state } = useAuth();
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [totalSchedules, setTotalSchedules] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [scheduleHours, setScheduleHours] = useState<ScheduleHour[]>([]);
+  const [centerScheduleHours, setCenterScheduleHours] = useState<CenterScheduleHour[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -65,6 +65,17 @@ function SchedulesPage() {
   };
 
   async function fetchSchedules() {
+    const centerScheduleHoursResponse = await fetchData("list_center_schedule_hours", {
+      "filters": {
+      },
+      "list_options": {
+        "order_bys": "n_hour"
+      }
+    });
+    if(centerScheduleHoursResponse){
+      setCenterScheduleHours(centerScheduleHoursResponse);
+    }
+
     const schedulesResponse = await fetchData("list_schedules", {
       "filters": {
         "id": { "$gte": 1000 }
@@ -133,14 +144,7 @@ function SchedulesPage() {
         return new Schedule(schedule);
       });
 
-      setTeachers(teachersWithDetails);
-
       setSchedules(schedulesWithAllData);
-
-
-
-
-
     }
   }
 
@@ -288,7 +292,7 @@ function SchedulesPage() {
         totalPages={totalPages}
       />
       {selectedSchedule && (
-        <ScheduleDetails isOpen={isModalOpen} onClose={handleCloseModal} schedule={selectedSchedule} scheduleHours={scheduleHours} />
+        <ScheduleDetails isOpen={isModalOpen} onClose={handleCloseModal} schedule={selectedSchedule} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} />
       )}
 
     </div>
