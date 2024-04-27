@@ -6,6 +6,7 @@ export class ScheduleHour {
   week_day: number = 0;
   n_hour: number = 0;
   course: number = 0;
+  notes: string = '';
 
   get isNew(): boolean {
     return this.id === undefined;
@@ -20,5 +21,6 @@ export class ScheduleHour {
     if (initializer.week_day) this.week_day = initializer.week_day;
     if (initializer.n_hour) this.n_hour = initializer.n_hour;
     if (initializer.course) this.course = initializer.course;
+    if (initializer.notes) this.notes = initializer.notes;
   }
 }

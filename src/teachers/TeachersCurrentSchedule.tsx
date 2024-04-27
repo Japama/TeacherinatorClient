@@ -17,17 +17,19 @@ function TeachersCurrentSchedule() {
 
   const fetchData = async (method: string, params: object) => {
     try {
+      let body = JSON.stringify({
+        "id": 1,
+        "method": method,
+        "params": params
+      })
+      console.log(body);
       const response = await fetch('http://127.0.0.1:8081/api/rpc', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          "id": 1,
-          "method": method,
-          "params": params
-        }),
+        body: body,
       });
 
       if (response.ok) {
@@ -51,39 +53,38 @@ function TeachersCurrentSchedule() {
     return true;
   };
 
-  const fetchDataWithFilters = async (endpoint: string, filters: Record<string, unknown>) => {
-    try {
-      const response = await fetchData(endpoint, { filters });
-      if (response) {
-        return response;
-      }
-      throw new Error(`No data found for ${endpoint}`);
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  };
-
-
   const fetchAllData = async () => {
 
-    const centerScheduleHours: [CenterScheduleHour] = await fetchDataWithFilters("list_center_schedule_hours", {
+    const centerScheduleHours: [CenterScheduleHour] = await fetchData("list_center_schedule_hours", {
       "filters": {
         // "id": { "$gte": 1000 }
       },
       "list_options": {
-        "order_bys": "n_hour",
+        "order_bys": [
+          "n_hour",
+          "week_day"
+      ]
       }
     });
     if (!centerScheduleHours) return;
     setCenterScheduleHours(centerScheduleHours);
-    const schedule = await fetchDataWithFilters("get_user_schedule", {});
+    const schedule = await fetchData("get_user_schedule", {});
     if (!schedule) return;
-    const scheduleHours = await fetchDataWithFilters("list_schedule_hours", {});
+    const scheduleHours = await fetchData("list_schedule_hours", {
+      "filters": {
+        "schedule_id": schedule.id
+      },
+      "list_options": {
+        "order_bys": [
+          "n_hour",
+          "week_day"
+      ]
+      }
+    });
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-04-29T19:56:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const specificDate = new Date('2024-04-26T12:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
     const probando = false;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
@@ -121,8 +122,9 @@ function TeachersCurrentSchedule() {
     }
     else {
       const firstClassTime = new Date();
+      console.log(centerScheduleHours);
       firstClassTime.setHours(...centerScheduleHours[0].start_time)
-      if (currentTime < firstClassTime) {
+      if (currentTime < firstClassTime && currentDayOfWeek < 5) {
         nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
           return hour.week_day === currentDayOfWeek && hour.n_hour === 0;
         });
@@ -161,6 +163,7 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Aula:</span> {currentScheduleHour.classroom_name}</p>
           <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].start_time) : ''}</p>
           <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].end_time) : ''}</p>
+          <p><span className="font-bold">Observaciones:</span> {currentScheduleHour.notes}</p>
         </div>
       )}
       {nextScheduleHour && (
@@ -171,6 +174,7 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Aula:</span> {nextScheduleHour.classroom_name}</p>
           <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].start_time) : ''}</p>
           <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].end_time) : ''}</p>
+          <p><span className="font-bold">Observaciones:</span> {nextScheduleHour.notes}</p>
         </div>
       )}
     </div>
