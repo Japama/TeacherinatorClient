@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -8,6 +8,8 @@ import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
 function TeachersCurrentSchedule() {
   const navigate = useNavigate();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
+  const [currentCenterScheduleHour, setCurrentCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
+  const [nextCenterScheduleHour, setNextCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
   const [nextScheduleHour, setNextScheduleHour] = useState<ScheduleHour | null>(null);
   const [centerScheduleHours, setCenterScheduleHours] = useState<[CenterScheduleHour] | null>(null);
 
@@ -22,7 +24,6 @@ function TeachersCurrentSchedule() {
         "method": method,
         "params": params
       })
-      console.log(body);
       const response = await fetch('http://127.0.0.1:8081/api/rpc', {
         method: 'POST',
         credentials: 'include',
@@ -63,7 +64,7 @@ function TeachersCurrentSchedule() {
         "order_bys": [
           "n_hour",
           "week_day"
-      ]
+        ]
       }
     });
     if (!centerScheduleHours) return;
@@ -78,14 +79,14 @@ function TeachersCurrentSchedule() {
         "order_bys": [
           "n_hour",
           "week_day"
-      ]
+        ]
       }
     });
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-04-26T12:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
-    const probando = false;
+    const specificDate = new Date('2024-05-02T11:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const probando = true;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
 
@@ -99,18 +100,31 @@ function TeachersCurrentSchedule() {
       return hour.week_day === currentDayOfWeek && startTime <= currentTime && currentTime <= endTime;
     });
 
+
     let currentScheduleHour: ScheduleHour;
     let nextScheduleHour;
     if (current_hour) {
+      setCurrentCenterScheduleHour(current_hour);
+
+      const next_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
+        startTime.setHours(...hour.start_time)
+        endTime.setHours(...hour.end_time);
+        return hour.week_day === currentDayOfWeek && hour.n_hour === current_hour.n_hour + 1;
+      });
+      if (next_hour)
+        setNextCenterScheduleHour(next_hour);
+
       currentScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
         return hour.week_day === currentDayOfWeek && current_hour.n_hour === hour.n_hour;
       });
-
       if (currentScheduleHour) {
+
         setCurrentScheduleHour(currentScheduleHour);
         nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
-          return hour.week_day >= currentDayOfWeek && hour.n_hour === currentScheduleHour?.n_hour + 1;
+          return hour.week_day >= currentDayOfWeek && hour.n_hour === current_hour.n_hour + 1;
         });
+        console.log(currentScheduleHour);
+        console.log(nextScheduleHour);
       }
       else {
         const add = current_hour.n_hour >= (centerScheduleHours.length - 1) ? 0 : 1;
@@ -122,7 +136,6 @@ function TeachersCurrentSchedule() {
     }
     else {
       const firstClassTime = new Date();
-      console.log(centerScheduleHours);
       firstClassTime.setHours(...centerScheduleHours[0].start_time)
       if (currentTime < firstClassTime && currentDayOfWeek < 5) {
         nextScheduleHour = scheduleHours.find((hour: ScheduleHour) => {
@@ -161,8 +174,8 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[currentScheduleHour.week_day]}</p>
           <p><span className="font-bold">Asignatura:</span> {currentScheduleHour.subject_name}</p>
           <p><span className="font-bold">Aula:</span> {currentScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].start_time) : ''}</p>
-          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && currentScheduleHour ? formatTime(centerScheduleHours[currentScheduleHour.n_hour].end_time) : ''}</p>
+          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.end_time) : ''}</p>
           <p><span className="font-bold">Observaciones:</span> {currentScheduleHour.notes}</p>
         </div>
       )}
@@ -172,8 +185,8 @@ function TeachersCurrentSchedule() {
           <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[nextScheduleHour.week_day]}</p>
           <p><span className="font-bold">Asignatura:</span> {nextScheduleHour.subject_name}</p>
           <p><span className="font-bold">Aula:</span> {nextScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].start_time) : ''}</p>
-          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && nextScheduleHour ? formatTime(centerScheduleHours[nextScheduleHour.n_hour].end_time) : ''}</p>
+          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.end_time) : ''}</p>
           <p><span className="font-bold">Observaciones:</span> {nextScheduleHour.notes}</p>
         </div>
       )}

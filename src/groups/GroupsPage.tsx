@@ -4,9 +4,10 @@ import GroupList from './GroupList';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth/AuthContext';
 import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
+import { checkLogin } from '../auth/AuthHelpers';
 
 interface GroupData {
   id?: number;
@@ -16,7 +17,7 @@ interface GroupData {
 }
 
 function GroupsPage() {
-  const { state } = useAuth();
+  const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
   const [totalGroups, setTotalGroups] = useState(0);
@@ -197,14 +198,8 @@ function GroupsPage() {
     }
   };
 
-  const checkLogin = () => {
-    if (!state.isLoggedIn) {
-      navigate("/login");
-    }
-  };
-
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     fetchAllData();
   }, [currentPage, itemsPerPage]);
 

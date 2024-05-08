@@ -1,6 +1,6 @@
 import './App.css';
-import { AuthProvider } from './AuthContext';
-import SignInSide from './login/SignInSide';
+import { AuthProvider } from './auth/AuthContext';
+import SignInSide from './auth/SignInSide';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LayoutPage from "./layout/LayoutPage";
 

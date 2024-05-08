@@ -3,34 +3,28 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '../templates/Header';
 import UserPage from "../users/UsersPage";
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import IndexPage from '../index/IndexPage';
 import DepartmentsPage from '../departments/DepartmentsPage';
 import TeachersPage from '../teachers/TeachersPage';
 import GroupsPage from '../groups/GroupsPage';
 import SchedulesPage from '../schedules/SchedulesPage';
 import Footer from '../templates/Footer';
-import { useAuth } from '../AuthContext';
 import TeachersCurrentSchedule from '../teachers/TeachersCurrentSchedule';
 import TeacherCheckIn from '../teachers/TeacherCheckIn ';
 
 
 function LayoutPage() {
-  const { state } = useAuth();
-
   const renderRoute = (path: string, element: React.ReactElement) => {
-    return state.isAdmin ? (
-      <Route path={path} element={element} />
-    ) : (
-      <Route path={path} element={<Navigate to="/login" replace />} />
-    );
+    return <Route path={path} element={element} />
   };
 
   return (
-    <div className="">
+    <div className=" min-h-screen pb-36 pt-12">
       <Header />
       <ToastContainer />
         <Routes>
+        <Route path="/*" element={<IndexPage />} />
           <Route path="/index" element={<IndexPage />} />
           {renderRoute("/departments", <DepartmentsPage />)}
           {renderRoute("/teachers", <TeachersPage />)}

@@ -4,7 +4,8 @@ import DepartmentList from './DepartmentList';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth/AuthContext';
+import { checkLogin } from '../auth/AuthHelpers';
 
 interface DepartmentData {
   id?: string;
@@ -14,7 +15,7 @@ interface DepartmentData {
 }
 
 function DepartmentsPage() {
-  const { state } = useAuth();
+  const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [totalDepartments, setTotalDepartments] = useState(0);
@@ -157,15 +158,8 @@ function DepartmentsPage() {
     }
   };
 
-
-  const checkLogin = () => {
-    if (!state.isLoggedIn) {
-      navigate("/login");
-    }
-  };
-
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     fetchAllData();
   }, [currentPage, itemsPerPage]);
 

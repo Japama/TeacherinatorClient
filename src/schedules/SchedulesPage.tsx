@@ -6,11 +6,12 @@ import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import ScheduleDetails from './ScheduleDetails';
 import { ScheduleHour } from './ScheduleHour';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth/AuthContext';
 import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { Group } from '../groups/Group';
 import { CenterScheduleHour } from './CenterScheduleHour';
+import { checkLogin } from '../auth/AuthHelpers';
 
 interface ScheduleData {
   id?: number;
@@ -20,7 +21,7 @@ interface ScheduleData {
 }
 
 function SchedulesPage() {
-  const { state } = useAuth();
+  const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [totalSchedules, setTotalSchedules] = useState(0);
@@ -258,15 +259,8 @@ function SchedulesPage() {
     setIsModalOpen(false);
   };
 
-  const checkLogin = () => {
-    if (!state.isLoggedIn) {
-      navigate("/login");
-    }
-  };
-
-
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     fetchAllData();
   }, [currentPage, itemsPerPage]);
 

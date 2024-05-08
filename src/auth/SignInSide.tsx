@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../auth/AuthContext'; // Asumiendo que tienes una función `useAuth` para obtener el contexto de autenticación
+import { useAuth } from './AuthContext'; // Asumiendo que tienes una función `useAuth` para obtener el contexto de autenticación
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -9,6 +9,8 @@ interface SignInData {
 }
 
 export default function SignInSide() {
+    const { state } = useAuth();
+    const authState = useAuth().state;
     const { login } = useAuth(); // Obtén la función de inicio de sesión del contexto de autenticación
     const [formData, setFormData] = useState<SignInData>({
         username: '',
@@ -22,6 +24,7 @@ export default function SignInSide() {
         const { name, value } = event.target;
         setFormData({ ...formData, [name]: value });
     };
+    const navigate = useNavigate();
 
     async function doLogin() {
         try {

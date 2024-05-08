@@ -1,7 +1,7 @@
 // AuthContext.tsx
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import Cookies from "js-cookie";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 // Definir las acciones relacionadas con la autenticación
@@ -35,13 +35,14 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 // Estado inicial
-const initialState: AuthState = { isLoggedIn: false, username: null, isAdmin: false};
+const initialState: AuthState = { isLoggedIn: false, username: null, isAdmin: false };
 
 // Crear el contexto de autenticación
 const AuthContext = createContext<{
   state: AuthState;
   login: (formData: LoginForm) => Promise<void>;
   logout: () => void;
+  getCurrentUser: () => Promise<AuthState | null>;
 } | undefined>(undefined);
 
 // Proveedor de autenticación
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   const login = async (formData: LoginForm) => {
-    if(!state.isLoggedIn){
+    if (!state.isLoggedIn) {
       try {
         const response = await fetch('http://127.0.0.1:8081/api/login', {
           method: 'POST',
@@ -63,8 +64,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (response.ok) {
           const data = await response.json();
-          dispatch({ type: 'LOGIN', username: formData.username, isAdmin: data.result.is_admin });
-          Cookies.set('loged_in', 'true', {expires: 1 / 24});
+          const is_admin = data.result.is_admin;
+          dispatch({ type: 'LOGIN', username: formData.username, isAdmin: is_admin });
+          Cookies.set('loged_in', 'true', { expires: 1 / 24 });
+          Cookies.set('is_admin', is_admin, { expires: 1 / 24 });
           navigate("/checkin");
         } else {
           notify("Usuario o contraseña incorrectos");
@@ -78,7 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = async () => {
-    let logoutForm : LogoutForm = { logoff: true };
+    let logoutForm: LogoutForm = { logoff: true };
     const response = await fetch('http://127.0.0.1:8081/api/logoff', {
       method: 'POST',
       headers: {
@@ -92,13 +95,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const getCurrentUser = async (): Promise<AuthState | null> => {
+    try {
+      const response = await fetch('http://127.0.0.1:8081/api/rpc', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "id": 1,
+          "method": "get_current_user"
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const is_admin = data.result.isadmin;
+        const username = data.result.username;
+        dispatch({ type: 'LOGIN', username: username, isAdmin: is_admin });
+        const currentState: AuthState = { isLoggedIn: true, username: username, isAdmin: is_admin };
+        return currentState;
+      } else {
+        console.error(`Error al obtener el usuario actual`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return null;
+    }
+  };
+
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
-}
+  }
+
+  useEffect(() => {
+  }, [state.username, state.isAdmin]);
+
 
   return (
-    
-    <AuthContext.Provider value={{ state, login, logout }}>
+
+    <AuthContext.Provider value={{ state, login, logout, getCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

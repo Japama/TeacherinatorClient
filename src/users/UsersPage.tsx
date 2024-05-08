@@ -4,7 +4,8 @@ import UserList from './UserList';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth/AuthContext';
+import { checkLogin } from '../auth/AuthHelpers';
 
 interface UserData {
   id?: number;
@@ -16,7 +17,7 @@ interface UserData {
 }
 
 function UsersPage() {
-  const { state } = useAuth();
+  const { state, getCurrentUser} = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
 
@@ -89,12 +90,6 @@ function UsersPage() {
   const fetchAllData = async () => {
     await fetchAllUsers();
     await fetchUsers();
-  };
-
-  const checkLogin = () => {
-    if (!state.isLoggedIn) {
-      navigate("/login");
-    }
   };
 
   const handleCreateOrUpdateUser = async (user: User) => {
@@ -170,7 +165,7 @@ function UsersPage() {
   };
 
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     const checkPage = () => {
 
       if (itemsPerPage === 0 || itemsPerPage > totalUsers)

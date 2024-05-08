@@ -6,7 +6,9 @@ import { Department } from '../departments/Department';
 import { User } from '../users/User';
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth/AuthContext';
+import Cookies from 'js-cookie';
+import { checkLogin } from '../auth/AuthHelpers';
 
 interface TeacherData {
   id?: string;
@@ -21,7 +23,7 @@ interface TeacherData {
 }
 
 function TeachersPage() {
-  const { state } = useAuth();
+  const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [allTeachers, setAllTeachers] = useState<Teacher[]>([]);
@@ -239,14 +241,7 @@ function TeachersPage() {
   };
 
   useEffect(() => {
-    const checkLogin = () => {
-      if (!state.isLoggedIn) {
-        navigate("/login");
-      }
-    };
-
-
-
+    checkLogin(getCurrentUser, navigate);
     const checkPage = () => {
       if (itemsPerPage === 0 || itemsPerPage > allTeachers.length)
         setCurrentPage(1);
@@ -255,8 +250,6 @@ function TeachersPage() {
         setCurrentPage(currentPage - 1);
     };
 
-
-    checkLogin()
     fetchAllData();
     checkPage();
   }, [currentPage, itemsPerPage]);
