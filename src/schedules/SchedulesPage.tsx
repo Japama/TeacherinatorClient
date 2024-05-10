@@ -7,7 +7,7 @@ import Pagination from '../templates/Pagination';
 import ScheduleDetails from './ScheduleDetails';
 import { ScheduleHour } from './ScheduleHour';
 import { useAuth } from '../auth/AuthContext';
-import { Teacher } from '../teachers/Teacher';
+// import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { Group } from '../groups/Group';
 import { CenterScheduleHour } from './CenterScheduleHour';
@@ -88,15 +88,15 @@ function SchedulesPage() {
       }
     });
 
-    const teachersResponse = await fetchData("list_teachers", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
-      "list_options": {
-        "order_bys": "id",
-        "offset": (currentPage - 1) * itemsPerPage,
-      }
-    });
+    // const teachersResponse = await fetchData("list_teachers", {
+    //   "filters": {
+    //     "id": { "$gte": 1000 }
+    //   },
+    //   "list_options": {
+    //     "order_bys": "id",
+    //     "offset": (currentPage - 1) * itemsPerPage,
+    //   }
+    // });
 
     const usersResponse = await fetchData("list_users", {
       "filters": {
@@ -114,28 +114,18 @@ function SchedulesPage() {
     });
 
     
-    if (teachersResponse && usersResponse && schedulesResponse && groupsResponse) {
-      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
-        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
-        const user = usersMap.get(teacher.user_id);
+    if (usersResponse && schedulesResponse && groupsResponse) {
+      const scheduleWithUsers = schedulesResponse.map((schedule: Schedule) => {
+        const userMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = userMap.get(schedule.user_id);
         if (user) {
-          teacher.user = new User(user);
-        }
-
-        return new Teacher(teacher);
-      });
-
-      const scheduleWithTeachers = schedulesResponse.map((schedule: Schedule) => {
-        const teacherMap = new Map(teachersWithDetails.map((teacher: Teacher) => [teacher.id, teacher]));
-        const teacher = teacherMap.get(schedule.teacher_id);
-        if (teacher) {
-          schedule.teacher = new Teacher(teacher);
+          schedule.user = new User(user);
         }
 
         return new Schedule(schedule);
       });
 
-      const schedulesWithAllData = scheduleWithTeachers.map((schedule: Schedule) => {
+      const schedulesWithAllData = scheduleWithUsers.map((schedule: Schedule) => {
         const groupsMap = new Map(groupsResponse.map((group: Group) => [group.id, group]));
         const group = groupsMap.get(schedule.group_id);
         if (group) {

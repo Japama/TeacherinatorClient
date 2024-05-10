@@ -8,7 +8,7 @@ import { useAuth } from '../auth/AuthContext';
 import { checkLogin } from '../auth/AuthHelpers';
 
 interface DepartmentData {
-  id?: string;
+  id?: number;
   data: {
     name: string;
   };
@@ -125,7 +125,7 @@ function DepartmentsPage() {
   const handleDeleteDepartment = async (department: Department) => {
     try {
 
-      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+      if (await fetchData("count_users_by_department", { "id": department.id }) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
       }

@@ -5,7 +5,7 @@ import GroupForm from './GroupForm';
 
 interface GroupListProps {
     groups: Group[];
-    onCreate: (teacher: Group) => void;
+    onCreate: (group: Group) => void;
     onSave: (group: Group) => void;
     onDelete: (group: Group) => void;
 }

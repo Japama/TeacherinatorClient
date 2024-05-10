@@ -68,7 +68,7 @@ function Header() {
       <ul className="hidden items-center justify-between gap-10 md:flex">
         <NavItem to="/index" label="Indice" />
         {state.isAdmin && <NavItem to="/users" label="Usuarios" />}
-        {state.isAdmin && <NavItem to="/teachers" label="Docentes" />}
+        {/* {state.isAdmin && <NavItem to="/teachers" label="Docentes" />} */}
         {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
         {state.isAdmin && <NavItem to="/groups" label="Grupos" />}
         {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
@@ -84,7 +84,7 @@ function Header() {
           <ul className=" z-10  gap-2  bg-gray-200 dark:bg-[#393E46]  absolute right-0 top-11 flex w-[200px] flex-col  rounded-lg   text-base ">
             <DropNavItem to="/index" children="Indice" />
             {state.isAdmin && <DropNavItem to="/users" children="Usuarios" />}
-            {state.isAdmin && <DropNavItem to="/teachers" children="Docentes" />}
+            {/* {state.isAdmin && <DropNavItem to="/teachers" children="Docentes" />} */}
             {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}
             {state.isAdmin && <DropNavItem to="/schedules" children="Horarios" />}
             <DropNavItem to="/current" children="Tareas" />

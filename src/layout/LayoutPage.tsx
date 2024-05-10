@@ -6,12 +6,11 @@ import UserPage from "../users/UsersPage";
 import { Route, Routes } from 'react-router-dom';
 import IndexPage from '../index/IndexPage';
 import DepartmentsPage from '../departments/DepartmentsPage';
-import TeachersPage from '../teachers/TeachersPage';
 import GroupsPage from '../groups/GroupsPage';
 import SchedulesPage from '../schedules/SchedulesPage';
 import Footer from '../templates/Footer';
-import TeachersCurrentSchedule from '../teachers/TeachersCurrentSchedule';
-import TeacherCheckIn from '../teachers/TeacherCheckIn ';
+import UserCurrentSchedule from '../users/UserCurrentSchedule';
+import UserCheckIn from '../users/UserCheckIn ';
 
 
 function LayoutPage() {
@@ -27,12 +26,12 @@ function LayoutPage() {
         <Route path="/*" element={<IndexPage />} />
           <Route path="/index" element={<IndexPage />} />
           {renderRoute("/departments", <DepartmentsPage />)}
-          {renderRoute("/teachers", <TeachersPage />)}
+          {/* {renderRoute("/teachers", <TeachersPage />)} */}
           {renderRoute("/users", <UserPage />)}
           {renderRoute("/groups", <GroupsPage />)}
           {renderRoute("/schedules", <SchedulesPage />)}
-          <Route path="/current" element={<TeachersCurrentSchedule />} />
-          <Route path="/checkin" element={<TeacherCheckIn />} />
+          <Route path="/current" element={<UserCurrentSchedule />} />
+          <Route path="/checkin" element={<UserCheckIn  />} />
         </Routes>
       <Footer />
     </div>

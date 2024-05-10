@@ -57,16 +57,16 @@ function GroupsPage() {
   };
 
   async function fetchGroups() {
-    
-    const teachersResponse = await fetchData("list_teachers", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
-      "list_options": {
-        "order_bys": "id",
-        "offset": (currentPage - 1) * itemsPerPage,
-      }
-    });
+
+    // const teachersResponse = await fetchData("list_teachers", {
+    //   "filters": {
+    //     "id": { "$gte": 1000 }
+    //   },
+    //   "list_options": {
+    //     "order_bys": "id",
+    //     "offset": (currentPage - 1) * itemsPerPage,
+    //   }
+    // });
 
     const usersResponse = await fetchData("list_users", {
       "filters": {
@@ -75,16 +75,7 @@ function GroupsPage() {
       "list_options": {}
     });
 
-    if (teachersResponse && usersResponse) {
-      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
-        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
-        const user = usersMap.get(teacher.user_id);
-        if (user) {
-          teacher.user = new User(user);
-        }
-
-        return new Teacher(teacher);
-      });
+    if (usersResponse) {
 
       const groupsResponse = await fetchData("list_groups", {
         "filters": {
@@ -99,9 +90,9 @@ function GroupsPage() {
       if (groupsResponse) {
         // Mapear los grupos con los profesores
         const updatedGroups = groupsResponse.map((group: Group) => {
-          const teacher = teachersWithDetails.find((teacher: Teacher) => teacher.user_id === group.tutor_id);
-          if (teacher) {
-            group.tutor_name = teacher.user.username;
+          const user = usersResponse.find((user: User) => user.id === group.tutor_id);
+          if (user) {
+            group.tutor_name = user.username;
           }
           return group;
         });

@@ -5,21 +5,30 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
+import { Department } from '../departments/Department';
 import { checkLogin } from '../auth/AuthHelpers';
 
 interface UserData {
   id?: number;
   data: {
     username: string;
-    isadmin: boolean;
+    is_admin: boolean;
     pwd: string;
+    active: boolean;
+    department_id: number;
+    in_center: boolean;
+    last_checkin: [number, number, number, number];
+    last_checkout: [number, number, number, number];
+    substituting_id: number | undefined;
+    substitutions: number;
   };
 }
 
 function UsersPage() {
-  const { state, getCurrentUser} = useAuth();
+  const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  const [departmens, setDepartmens] = useState<Department[]>([]);
 
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,7 +78,30 @@ function UsersPage() {
       }
     });
     if (usersResponse) {
+      const departmentsResponse = await fetchData("list_departments", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id"
+        }
+      });
+      if (departmentsResponse ) {
+        setDepartmens(departmentsResponse);
+        const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
+        const usersWithDetails = usersResponse.map((user: User) => {
+        const department = departmentsMap.get(user.department_id);
+
+          // Asegúrate de que el departamento y el usuario existen antes de intentar acceder a sus propiedades.
+          if (department) {
+            user.department = new Department(department);
+          }
+          return new User(user);
+        });
+        setUsers(usersWithDetails);
+    } else{
       setUsers(usersResponse);
+    }
     }
   }
 
@@ -92,14 +124,22 @@ function UsersPage() {
     await fetchUsers();
   };
 
-  const handleCreateOrUpdateUser = async (user: User) => {
+  const handleCreateOrUpdateUser = async (user: User, changePassword: boolean) => {
     const update = user.id ? true : false;
-    const method = update ? "update_user_pwd" : "create_user";
+    
+    const method = !update ? "create_user" : "update_user_pwd";
     const data: UserData = {
       data: {
         username: user.username,
-        isadmin: user.isadmin,
-        pwd: user.pwd
+        pwd: user.pwd,
+        is_admin: user.is_admin,
+        in_center: user.in_center,
+        last_checkin: user.last_checkin,
+        last_checkout: user.last_checkout,
+        active: user.active,
+        department_id: user.department_id,
+        substituting_id: user.substituting_id ? user.substituting_id : undefined,
+        substitutions: user.substitutions
       }
     };
 
@@ -118,6 +158,7 @@ function UsersPage() {
         return u.id === user.id ? user : u;
       });
       setUsers(updatedUsers);
+      fetchAllData()
     } else {
       if (users.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
@@ -166,6 +207,10 @@ function UsersPage() {
 
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);
+    fetchAllData(); // Se ejecutará solo una vez cuando el componente se monta
+  }, []); // Array de dependencias vacío
+
+  useEffect(() => {
     const checkPage = () => {
 
       if (itemsPerPage === 0 || itemsPerPage > totalUsers)
@@ -175,9 +220,8 @@ function UsersPage() {
         setCurrentPage(currentPage - 1);
     }
 
-    fetchAllData();
     checkPage();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, users]);
 
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const paginationRange = 9;
@@ -190,7 +234,7 @@ function UsersPage() {
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} />
+      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} departments={departmens} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
     </div>
   );

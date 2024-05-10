@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
 import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
 
-function TeachersCurrentSchedule() {
+function UserCurrentSchedule() {
   const navigate = useNavigate();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [currentCenterScheduleHour, setCurrentCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
@@ -192,4 +192,4 @@ function TeachersCurrentSchedule() {
   );
 }
 
-export default TeachersCurrentSchedule;
+export default UserCurrentSchedule;

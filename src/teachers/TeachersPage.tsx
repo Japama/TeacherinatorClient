@@ -156,7 +156,7 @@ function TeachersPage() {
         "params": {
           "data": {
             "username": username,
-            "isadmin": false,
+            "is_admin": false,
             "pwd": "Contraseña"
           }
         }
