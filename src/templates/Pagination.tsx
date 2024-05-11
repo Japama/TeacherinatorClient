@@ -17,7 +17,7 @@ const Pagination: React.FC<PaginationProps> = ({ itemsPerPage, handleItemsPerPag
                 <select
                     value={itemsPerPage}
                     onChange={handleItemsPerPageChange}
-                    className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
                     {[5, 10, 20, 50, 0].map((value, index) => (
                         <option key={index} value={value}>
