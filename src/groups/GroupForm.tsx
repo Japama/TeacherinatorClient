@@ -85,11 +85,11 @@ function GroupForm(props: GroupFormProps) {
                     <div className="relative">
                         <label htmlFor="year" className="block">Curso:</label>
                         <input id="year" type="number" name="year" required value={editedGroup.year} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" pattern="^(200[1-9]|20[1-9][0-9]|3000)$"
-                            title="Por favor, introduzca un año entre 2001 y 3000" />
+                            title="Por favor, introduzca un año entre 2001 y 3000" readOnly={!!editedGroup.id} />
                     </div>
                     <div className="relative">
                         <label htmlFor="course" className="block">Nivel:</label>
-                        <select id="course" name="course" required value={editedGroup.course} onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
+                        <select id="course" name="course" required value={editedGroup.course} onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" disabled={!!editedGroup.id}>
                             {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
                             <option value="1">1º</option>
                             <option value="2">2º</option>
@@ -103,7 +103,7 @@ function GroupForm(props: GroupFormProps) {
                     </div>
                     <div className="relative">
                         <label htmlFor="stage" className="block">Etapa:</label>
-                        <select id="stage" name="stage" required value={editedGroup.stage} onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
+                        <select id="stage" name="stage" required value={editedGroup.stage} onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" disabled={!!editedGroup.id}>
                             {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
                             <option value="1">ESO</option>
                             <option value="2">Bachiller</option>
@@ -112,9 +112,9 @@ function GroupForm(props: GroupFormProps) {
                     </div>
                     <div className="relative">
                         <label htmlFor="letter" className="block">Letra:</label>
-                        <input id="letter" type="text" name="letter" required pattern="[A-Za-z]" value={editedGroup.letter.toUpperCase()} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
+                        <input id="letter" type="text" name="letter" required pattern="[A-Za-z]" value={editedGroup.letter.toUpperCase()} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" readOnly={!!editedGroup.id} />
                     </div>
-
+    
                     <div className="relative z-50">
                         <label htmlFor="tutor_name" className="block">Tutor:</label>
                         <ReactSelect<Option, false>
@@ -140,6 +140,7 @@ function GroupForm(props: GroupFormProps) {
             </div >
         </div >
     );
+    
 }
 
 export default GroupForm;

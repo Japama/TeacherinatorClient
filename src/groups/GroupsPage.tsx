@@ -123,7 +123,15 @@ function GroupsPage() {
 
     if (update) {
       data.id = group.id;
+    } else {
+      const checkResponse = await fetchData("check_group_exists", data);
+      console.log(checkResponse);
+      if (checkResponse) {
+        notify("El grupo ya existe");
+        return;
+      }
     }
+
 
     const responseData = await fetchData(method, data);
 
