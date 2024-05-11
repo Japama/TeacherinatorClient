@@ -261,8 +261,8 @@ function SchedulesPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+    <div className="items-center justify-center bg-transparent w-10/12 mx-auto">
+      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Horarios</h1>
       </div>
       <ScheduleList onCreate={handleCreateOrUpdateSchedule} onSave={handleCreateOrUpdateSchedule} schedules={schedules} onDelete={handleDeleteSchedule} onViewDetails={handleViewScheduleDetails} />
@@ -276,7 +276,7 @@ function SchedulesPage() {
         totalPages={totalPages}
       />
       {selectedSchedule && (
-        <ScheduleDetails isOpen={isModalOpen} onClose={handleCloseModal} schedule={selectedSchedule} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} />
+        <ScheduleDetails isOpen={isModalOpen} onClose={handleCloseModal} schedule={selectedSchedule} username={selectedSchedule.user?.username} group={selectedSchedule.group} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} />
       )}
 
     </div>
@@ -284,3 +284,4 @@ function SchedulesPage() {
 }
 
 export default SchedulesPage;
+

@@ -206,11 +206,6 @@ function UsersPage() {
   };
 
   useEffect(() => {
-    checkLogin(getCurrentUser, navigate);
-    fetchAllData(); // Se ejecutará solo una vez cuando el componente se monta
-  }, []); // Array de dependencias vacío
-
-  useEffect(() => {
     const checkPage = () => {
 
       if (itemsPerPage === 0 || itemsPerPage > totalUsers)
@@ -219,9 +214,10 @@ function UsersPage() {
       if ((itemsPerPage * currentPage) >= totalUsers + itemsPerPage && currentPage > 1)
         setCurrentPage(currentPage - 1);
     }
-
+    checkLogin(getCurrentUser, navigate);
     checkPage();
-  }, [currentPage, itemsPerPage, users]);
+    fetchAllData(); // Se ejecutará solo una vez cuando el componente se monta
+  }, [currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const paginationRange = 9;
@@ -230,8 +226,8 @@ function UsersPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="flex-grow items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto">
+      <div className='m-4 text-3xl font-semibold text-white'>
         <h1>Usuarios</h1>
       </div>
       <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} departments={departmens} />

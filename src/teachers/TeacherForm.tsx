@@ -121,7 +121,7 @@ function TeacherForm(props: TeacherFormProps) {
                                 required
                                 className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none"
                             />
-                            <label htmlFor="newUserPwd" className="block">Contraseña del nuevo usuario:</label>
+                            <label htmlFor="newUserPwd" className="block">Contraseña nueva:</label>
                             <input
                                 id="newUserPwd"
                                 type="password"

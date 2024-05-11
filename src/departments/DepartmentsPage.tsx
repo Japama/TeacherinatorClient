@@ -170,8 +170,8 @@ function DepartmentsPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+    <div className="items-center justify-center  bg-transparent w-10/12 mx-auto">
+      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Departamentos</h1>
       </div>
       <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />

@@ -86,7 +86,7 @@ function UserCurrentSchedule() {
 
     // Obtén la hora y el día de la semana actuales
     const specificDate = new Date('2024-05-02T11:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
-    const probando = true;
+    const probando = false;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
 
@@ -102,7 +102,7 @@ function UserCurrentSchedule() {
 
 
     let currentScheduleHour: ScheduleHour;
-    let nextScheduleHour;
+    let nextScheduleHour: ScheduleHour;
     if (current_hour) {
       setCurrentCenterScheduleHour(current_hour);
 
@@ -149,6 +149,13 @@ function UserCurrentSchedule() {
 
     // Actualiza el estado con el horario actual y el próximo
     setNextScheduleHour(nextScheduleHour);
+    const next_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
+      startTime.setHours(...hour.start_time)
+      endTime.setHours(...hour.end_time);
+      return hour.week_day === currentDayOfWeek && hour.n_hour === nextScheduleHour.n_hour + 1;
+    });
+    if (next_hour)
+      setNextCenterScheduleHour(next_hour);
 
   };
 

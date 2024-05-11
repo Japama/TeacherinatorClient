@@ -22,17 +22,18 @@ function LayoutPage() {
     <div className=" min-h-screen pb-36 pt-12">
       <Header />
       <ToastContainer />
-        <Routes>
+      <IndexPage />
+      <Routes>
         <Route path="/*" element={<IndexPage />} />
-          <Route path="/index" element={<IndexPage />} />
-          {renderRoute("/departments", <DepartmentsPage />)}
-          {/* {renderRoute("/teachers", <TeachersPage />)} */}
-          {renderRoute("/users", <UserPage />)}
-          {renderRoute("/groups", <GroupsPage />)}
-          {renderRoute("/schedules", <SchedulesPage />)}
-          <Route path="/current" element={<UserCurrentSchedule />} />
-          <Route path="/checkin" element={<UserCheckIn  />} />
-        </Routes>
+        <Route path="/index" element={<IndexPage />} />
+        {renderRoute("/departments", <DepartmentsPage />)}
+        {/* {renderRoute("/teachers", <TeachersPage />)} */}
+        {renderRoute("/users", <UserPage />)}
+        {renderRoute("/groups", <GroupsPage />)}
+        {renderRoute("/schedules", <SchedulesPage />)}
+        <Route path="/current" element={<UserCurrentSchedule />} />
+        <Route path="/checkin" element={<UserCheckIn />} />
+      </Routes>
       <Footer />
     </div>
   );

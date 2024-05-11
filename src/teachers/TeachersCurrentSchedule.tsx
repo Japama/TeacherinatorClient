@@ -86,14 +86,14 @@ function TeachersCurrentSchedule() {
 
     // Obtén la hora y el día de la semana actuales
     const specificDate = new Date('2024-05-02T11:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
-    const probando = true;
+    const probando = false;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
 
     // Filtra los horarios para encontrar el horario actual y el próximo
     const startTime = new Date(currentTime);
     const endTime = new Date(currentTime);
-
+    console.log(currentTime);
     const current_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
       startTime.setHours(...hour.start_time)
       endTime.setHours(...hour.end_time);

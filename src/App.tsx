@@ -8,7 +8,7 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <div className='Body flex flex-col App bg-gray-500 dark:bg-[#393E46] xl:min-w-min min-h-screen'>
+                <div className='Body flex flex-col App bg-gradient-to-r from-blue-400 to-purple-600 dark:bg-[#393E46] xl:min-w-min min-h-screen'>
                     <Routes>
                         <Route path="/" element={<SignInSide />} />
                         <Route path="/login" element={<SignInSide />} />

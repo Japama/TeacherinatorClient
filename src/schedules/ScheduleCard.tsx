@@ -61,8 +61,8 @@ function ScheduleCard(props: ScheduleCardProps) {
     return (
         <>
             {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} schedule={schedule} /> */}
-            <tr className="h-[70px] border-b bg-[#484D58] text-[#FFFFFF]">
-                <td className="px-6 py-4 text-start"><input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" /></td>
+            <tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]">
+                {/* <td className="px-6 py-4 text-start"><input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" /></td> */}
                 <td className="px-6 py-4 text-start">{schedule.course}</td>
                 <td className="px-6 py-4 text-start">{schedule.user?.username}</td>
                 <td className="px-6 py-4 text-start"> {schedule.group?.course} {schedule.group && getStageText(schedule.group.stage)} {schedule.group?.letter}</td>

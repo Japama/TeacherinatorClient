@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
-import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { checkLogin } from '../auth/AuthHelpers';
 
@@ -13,13 +12,20 @@ interface GroupData {
   id?: number;
   data: {
     course: number;
+    stage: number;
+    year: number;
+    letter: string;
+    tutor_name: string;
   };
 }
+
+
 
 function GroupsPage() {
   const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [totalGroups, setTotalGroups] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -57,17 +63,6 @@ function GroupsPage() {
   };
 
   async function fetchGroups() {
-
-    // const teachersResponse = await fetchData("list_teachers", {
-    //   "filters": {
-    //     "id": { "$gte": 1000 }
-    //   },
-    //   "list_options": {
-    //     "order_bys": "id",
-    //     "offset": (currentPage - 1) * itemsPerPage,
-    //   }
-    // });
-
     const usersResponse = await fetchData("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
@@ -76,7 +71,7 @@ function GroupsPage() {
     });
 
     if (usersResponse) {
-
+      setUsers(usersResponse);
       const groupsResponse = await fetchData("list_groups", {
         "filters": {
           "id": { "$gte": 1000 }
@@ -88,15 +83,7 @@ function GroupsPage() {
         }
       });
       if (groupsResponse) {
-        // Mapear los grupos con los profesores
-        const updatedGroups = groupsResponse.map((group: Group) => {
-          const user = usersResponse.find((user: User) => user.id === group.tutor_id);
-          if (user) {
-            group.tutor_name = user.username;
-          }
-          return group;
-        });
-        setGroups(updatedGroups);
+        setGroups(groupsResponse);
       }
     }
   }
@@ -126,7 +113,11 @@ function GroupsPage() {
     const method = update ? "update_group" : "create_group";
     const data: GroupData = {
       data: {
-        course: group.course
+        course: group.course,
+        stage: group.stage,
+        year: Number(group.year),
+        letter: group.letter,
+        tutor_name: group.tutor_name
       }
     };
 
@@ -149,17 +140,12 @@ function GroupsPage() {
       if (groups.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
       }
-      fetchAllData();
     }
+    fetchAllData();
   };
 
   const handleDeleteGroup = async (group: Group) => {
     try {
-
-      if (await fetchData("count_teachers_by_group", { "id": group.id }) > 0) {
-        notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
-        return;
-      }
 
       await fetchData("delete_group", { "id": group.id });
       if (groups.length === 1) {
@@ -201,11 +187,11 @@ function GroupsPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+    <div className="items-center justify-center  bg-transparent w-10/12 mx-auto">
+      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Grupos</h1>
       </div>
-      <GroupList onCreate={handleCreateOrUpdateGroup} onSave={handleCreateOrUpdateGroup} groups={groups} onDelete={handleDeleteGroup} />
+      <GroupList groups={groups} users={users} onCreate={handleCreateOrUpdateGroup} onSave={handleCreateOrUpdateGroup} onDelete={handleDeleteGroup} />
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}

@@ -66,7 +66,7 @@ function Header() {
       </div>
 
       <ul className="hidden items-center justify-between gap-10 md:flex">
-        <NavItem to="/index" label="Indice" />
+        {/* <NavItem to="/index" label="Indice" /> */}
         {state.isAdmin && <NavItem to="/users" label="Usuarios" />}
         {/* {state.isAdmin && <NavItem to="/teachers" label="Docentes" />} */}
         {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
@@ -82,7 +82,7 @@ function Header() {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="cursor-pointer" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /> </svg>
         {dropDownState && (
           <ul className=" z-10  gap-2  bg-gray-200 dark:bg-[#393E46]  absolute right-0 top-11 flex w-[200px] flex-col  rounded-lg   text-base ">
-            <DropNavItem to="/index" children="Indice" />
+            {/* <DropNavItem to="/index" children="Indice" /> */}
             {state.isAdmin && <DropNavItem to="/users" children="Usuarios" />}
             {/* {state.isAdmin && <DropNavItem to="/teachers" children="Docentes" />} */}
             {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}

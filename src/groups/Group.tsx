@@ -4,7 +4,6 @@ export class Group {
   stage: number = 0;
   year: number = 0;
   letter: string = '';
-  tutor_id: number | undefined;
   tutor_name: string = '';
 
   get isNew(): boolean {
@@ -18,7 +17,6 @@ export class Group {
     if (initializer.stage) this.stage = initializer.stage;
     if (initializer.course) this.course = initializer.course;    
     if (initializer.letter) this.letter = initializer.letter;
-    if (initializer.tutor_id) this.tutor_id = initializer.tutor_id;
     if (initializer.tutor_name) this.tutor_name = initializer.tutor_name;
   }
 }
