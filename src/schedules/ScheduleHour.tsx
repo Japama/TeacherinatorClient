@@ -5,7 +5,7 @@ export class ScheduleHour {
   classroom_name: string = '';
   week_day: number = 0;
   n_hour: number = 0;
-  course: number = 0;
+  course: number = 2024;
   notes: string = '';
 
   get isNew(): boolean {

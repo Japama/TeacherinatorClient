@@ -3,10 +3,13 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
-import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
+import { CenterScheduleHour } from '../centerSchedules/CenterScheduleHour';
+import { useAuth } from '../auth/AuthContext';
+import { checkLogin } from '../auth/AuthHelpers';
 
 function TeachersCurrentSchedule() {
   const navigate = useNavigate();
+  const { getCurrentUser } = useAuth();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [currentCenterScheduleHour, setCurrentCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
   const [nextCenterScheduleHour, setNextCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
@@ -44,14 +47,6 @@ function TeachersCurrentSchedule() {
       console.error("Error fetching data:", error);
       return null;
     }
-  };
-
-  const checkLogin = () => {
-    const loggedInCookie = Cookies.get('loged_in');
-    if (loggedInCookie !== "true") {
-      navigate("/login");
-    }
-    return true;
   };
 
   const fetchAllData = async () => {
@@ -93,11 +88,10 @@ function TeachersCurrentSchedule() {
     // Filtra los horarios para encontrar el horario actual y el próximo
     const startTime = new Date(currentTime);
     const endTime = new Date(currentTime);
-    console.log(currentTime);
     const current_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
       startTime.setHours(...hour.start_time)
       endTime.setHours(...hour.end_time);
-      return hour.week_day === currentDayOfWeek && startTime <= currentTime && currentTime <= endTime;
+      return startTime <= currentTime && currentTime <= endTime;
     });
 
 
@@ -109,7 +103,7 @@ function TeachersCurrentSchedule() {
       const next_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
         startTime.setHours(...hour.start_time)
         endTime.setHours(...hour.end_time);
-        return hour.week_day === currentDayOfWeek && hour.n_hour === current_hour.n_hour + 1;
+        return hour.n_hour === current_hour.n_hour + 1;
       });
       if (next_hour)
         setNextCenterScheduleHour(next_hour);
@@ -159,7 +153,7 @@ function TeachersCurrentSchedule() {
   };
 
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     fetchAllData();
   }, []);
 

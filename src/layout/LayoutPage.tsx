@@ -5,6 +5,7 @@ import Header from '../templates/Header';
 import UserPage from "../users/UsersPage";
 import { Route, Routes } from 'react-router-dom';
 import IndexPage from '../index/IndexPage';
+import CenterScheduleHoursPage from '../centerSchedules/CenterScheduleHoursPage';
 import DepartmentsPage from '../departments/DepartmentsPage';
 import GroupsPage from '../groups/GroupsPage';
 import SchedulesPage from '../schedules/SchedulesPage';
@@ -31,6 +32,7 @@ function LayoutPage() {
         {renderRoute("/users", <UserPage />)}
         {renderRoute("/groups", <GroupsPage />)}
         {renderRoute("/schedules", <SchedulesPage />)}
+        {renderRoute("/center", <CenterScheduleHoursPage />)}
         <Route path="/current" element={<UserCurrentSchedule />} />
         <Route path="/checkin" element={<UserCheckIn />} />
       </Routes>

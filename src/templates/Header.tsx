@@ -8,9 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { confirmAlert } from 'react-confirm-alert';
 import NavItem from './NavItem';
 import DropNavItem from './DropNavItem';
+import { checkLogin } from '../auth/AuthHelpers';
 
 function Header() {
-  const { state, logout } = useAuth();
+  const { state, logout, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [dropDownState, setDropDownState] = useState(false);
   const dropDownMenuRef = useRef<HTMLDivElement>(null);
@@ -51,9 +52,8 @@ function Header() {
       }
     };
 
-
     document.addEventListener('mousedown', closeDropDown);
-
+    checkLogin(getCurrentUser, navigate);
     return () => {
       document.removeEventListener('mousedown', closeDropDown);
     };
@@ -72,6 +72,7 @@ function Header() {
         {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
         {state.isAdmin && <NavItem to="/groups" label="Grupos" />}
         {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
+        {state.isAdmin && <NavItem to="/center" label="Horario centro" />}
         <NavItem to="/current" label="Tareas" />
         <NavItem to="/checkin" label="Fichar" />
         <li className="group flex  cursor-pointer flex-col bg-rose-700 rounded-md px-4 py-2">
@@ -87,6 +88,7 @@ function Header() {
             {/* {state.isAdmin && <DropNavItem to="/teachers" children="Docentes" />} */}
             {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}
             {state.isAdmin && <DropNavItem to="/schedules" children="Horarios" />}
+            {state.isAdmin && <DropNavItem to="/center" children="Horario centro" />}
             <DropNavItem to="/current" children="Tareas" />
             <DropNavItem to="/checkin" children="Fichar" />
             <li className="cursor-pointer  px-6 py-2 text-black dark:text-white hover:bg-sky-600 bg-red-500  rounded-lg">

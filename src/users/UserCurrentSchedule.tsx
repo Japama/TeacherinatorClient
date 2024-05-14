@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
-import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
+import { CenterScheduleHour } from '../centerSchedules/CenterScheduleHour';
 
 function UserCurrentSchedule() {
   const navigate = useNavigate();
@@ -62,8 +62,7 @@ function UserCurrentSchedule() {
       },
       "list_options": {
         "order_bys": [
-          "n_hour",
-          "week_day"
+          "n_hour"
         ]
       }
     });
@@ -77,16 +76,15 @@ function UserCurrentSchedule() {
       },
       "list_options": {
         "order_bys": [
-          "n_hour",
-          "week_day"
+          "n_hour"
         ]
       }
     });
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-05-02T11:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
-    const probando = false;
+    const specificDate = new Date('2024-05-14T12:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const probando = true;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
 
@@ -97,7 +95,7 @@ function UserCurrentSchedule() {
     const current_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
       startTime.setHours(...hour.start_time)
       endTime.setHours(...hour.end_time);
-      return hour.week_day === currentDayOfWeek && startTime <= currentTime && currentTime <= endTime;
+      return startTime <= currentTime && currentTime <= endTime;
     });
 
 
@@ -109,7 +107,7 @@ function UserCurrentSchedule() {
       const next_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
         startTime.setHours(...hour.start_time)
         endTime.setHours(...hour.end_time);
-        return hour.week_day === currentDayOfWeek && hour.n_hour === current_hour.n_hour + 1;
+        return hour.n_hour === current_hour.n_hour + 1;
       });
       if (next_hour)
         setNextCenterScheduleHour(next_hour);
@@ -152,7 +150,7 @@ function UserCurrentSchedule() {
     const next_hour = centerScheduleHours.find((hour: CenterScheduleHour) => {
       startTime.setHours(...hour.start_time)
       endTime.setHours(...hour.end_time);
-      return hour.week_day === currentDayOfWeek && hour.n_hour === nextScheduleHour.n_hour + 1;
+      return hour.n_hour === nextScheduleHour.n_hour + 1;
     });
     if (next_hour)
       setNextCenterScheduleHour(next_hour);

@@ -68,18 +68,18 @@ function ScheduleList({ schedules, onCreate, onSave, onDelete, onViewDetails }: 
                     schedules={schedules}
                 />
             )}
-            <table className="min-w-full border border-gray-200 bg-white shadow-lg">
+            <table className="min-w-full border border-gray-200 bg-white shadow-lg text-center">
                 <thead>
                     <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">
-                        {/* <th className="w-[50px] px-6 py-4 text-start ">
+                        {/* <th className="w-[50px] px-6 py-4 text-center ">
                             <input type="checkbox" id="myCheckbox" className="flex h-6 w-6 items-center rounded-full  border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                         </th> */}
-                        <th className="px-6 py-4 text-start">Curso</th>
-                        <th className="px-6 py-4 text-start">Docente</th>
-                        <th className="px-6 py-4 text-start">Grupo</th>
-                        <th className="px-6 py-4 text-start">Horario</th>
-                        {/* <th className="px-6 py-4 text-start">Editar</th>
-                        <th className="px-6 py-4 text-start">Eliminar</th> */}
+                        <th className="px-6 py-4 text-center">Curso</th>
+                        <th className="px-6 py-4 text-center">Docente</th>
+                        <th className="px-6 py-4 text-center">Grupo</th>
+                        <th className="px-6 py-4 text-center">Horario</th>
+                        {/* <th className="px-6 py-4 text-center">Editar</th>
+                        <th className="px-6 py-4 text-center">Eliminar</th> */}
                     </tr>
                 </thead>
                 <tbody>

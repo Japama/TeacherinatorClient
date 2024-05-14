@@ -11,6 +11,17 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ itemsPerPage, handleItemsPerPageChange, currentPage, handlePagination, endPage, startPage, totalPages }) => {
+    const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+    let displayPages = pageNumbers;
+
+    // Si hay más de 5 páginas, limitamos a las 5 más cercanas a la página actual
+    if (pageNumbers.length > 5) {
+        const currentPageIndex = pageNumbers.indexOf(currentPage);
+        const startPageIndex = Math.max(currentPageIndex - 2, 0);
+        const endPageIndex = startPageIndex + 5 <= pageNumbers.length ? startPageIndex + 5 : pageNumbers.length;
+        displayPages = pageNumbers.slice(startPageIndex, endPageIndex);
+    }
+
     return (
         <div className="overflow-x-auto my-4">
             <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
@@ -42,7 +53,7 @@ const Pagination: React.FC<PaginationProps> = ({ itemsPerPage, handleItemsPerPag
                     >
                         Anterior
                     </button>
-                    {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
+                    {displayPages.map((page) => (
                         <button
                             key={page}
                             onClick={() => handlePagination(page)}

@@ -13,7 +13,8 @@ export const checkLogin = async (getCurrentUser: GetCurrentUserType, navigate: N
   const currentState = await getCurrentUser();
   if (!currentState) {
     navigate("/login");
-  } else if (!currentState.isAdmin) {
-    navigate("/index");
+  } 
+  else if (!currentState.isAdmin) {
+    navigate("/checkin");
   }
 };
