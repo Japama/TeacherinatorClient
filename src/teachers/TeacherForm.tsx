@@ -99,7 +99,7 @@ function TeacherForm(props: TeacherFormProps) {
                 <h1 className="backdrop-blur-sm text-4xl pb-8">  {editedTeacher.id ? 'Editar profesor' : 'Crear profesor'}</h1>
                 <form id="teacherForm" onSubmit={handleSubmit} className="space-y-5">
                     {/* <div className="relative">
-                        <label htmlFor="isNewUser" className="block">Crear nuevo usuario:</label>
+                        <label htmlFor="isNewUser" className="block">Crear nuevo usuario</label>
                         <input
                             id="isNewUser"
                             type="checkbox"
@@ -111,7 +111,7 @@ function TeacherForm(props: TeacherFormProps) {
                     </div> */}
                     {isCreate && (
                         <div className="relative">
-                            <label htmlFor="newUserName" className="block">Nombre del nuevo usuario:</label>
+                            <label htmlFor="newUserName" className="block">Nombre del nuevo usuario</label>
                             <input
                                 id="newUserName"
                                 type="text"
@@ -121,7 +121,7 @@ function TeacherForm(props: TeacherFormProps) {
                                 required
                                 className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none"
                             />
-                            <label htmlFor="newUserPwd" className="block">Contraseña del nuevo usuario:</label>
+                            <label htmlFor="newUserPwd" className="block">Contraseña nueva</label>
                             <input
                                 id="newUserPwd"
                                 type="password"
@@ -136,7 +136,7 @@ function TeacherForm(props: TeacherFormProps) {
                     )}
                     {/* {!isCreate && (
                         <div className="relative">
-                            <label htmlFor="userId" className="block">Nombre de Usuario:</label>
+                            <label htmlFor="userId" className="block">Nombre de Usuario</label>
                             <select id="userId" name="user_id" value={editedTeacher.user_id} onChange={handleSelectChange} required className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
                                 {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
 
@@ -145,7 +145,7 @@ function TeacherForm(props: TeacherFormProps) {
                         </div>
                     )} */}
                     <div className="relative">
-                        <label htmlFor="active" className="block">Activo:</label>
+                        <label htmlFor="active" className="block">Activo</label>
                         <input
                             id="active"
                             type="checkbox"
@@ -156,7 +156,7 @@ function TeacherForm(props: TeacherFormProps) {
                         />
                     </div>
                     <div className="relative">
-                        <label htmlFor="departmentId" className="block">Nombre del Departamento:</label>
+                        <label htmlFor="departmentId" className="block">Nombre del Departamento</label>
 
                         <select id="departmentId" name="department_id" value={editedTeacher.department_id} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
                             {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}

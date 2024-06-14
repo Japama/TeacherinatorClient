@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (response.ok) {
         const data = await response.json();
-        const is_admin = data.result.isadmin;
+        const is_admin = data.result.is_admin;
         const username = data.result.username;
         dispatch({ type: 'LOGIN', username: username, isAdmin: is_admin });
         const currentState: AuthState = { isLoggedIn: true, username: username, isAdmin: is_admin };

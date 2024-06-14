@@ -12,7 +12,7 @@ interface DepartmentFormProps {
 }
 
 function DepartmentForm(props: DepartmentFormProps) {
-    const { isOpen, isCreate, onClose, onEdit, onCreate, department } = props;
+    const { isOpen, onClose, onEdit, onCreate, department } = props;
     const [editedDepartment, setEditedDepartment] = useState(department);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +41,7 @@ function DepartmentForm(props: DepartmentFormProps) {
             <h1 className="backdrop-blur-sm text-4xl pb-8">  {department.id ? 'Editar departamento' : 'Crear departamento'}</h1>
                 <form id="departmentForm" onSubmit={handleSubmit} className="space-y-5">
                     <div className="relative">
-                        <label htmlFor="name" className="block">Nombre:</label>
+                        <label htmlFor="name" className="block">Nombre</label>
                         <input id="name" type="text" name="name" required value={editedDepartment.name} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     <button type="submit" form="departmentForm" className="rounded-md  py-2 px-5 mb-4 mt-6 shadow-lg before:block before:-left-1 before:-top-1 before:bg-black before:absolute before:h-0 before:w-0 before:hover:w-[100%] before:hover:h-[100%]  before:duration-500 before:-z-40 after:block after:-right-1 after:-bottom-1 after:bg-black after:absolute after:h-0 after:w-0 after:hover:w-[100%] after:hover:h-[100%] after:duration-500 after:-z-40 bg-white relative inline-block">

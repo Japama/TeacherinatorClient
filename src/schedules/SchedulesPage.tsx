@@ -7,15 +7,27 @@ import Pagination from '../templates/Pagination';
 import ScheduleDetails from './ScheduleDetails';
 import { ScheduleHour } from './ScheduleHour';
 import { useAuth } from '../auth/AuthContext';
-import { Teacher } from '../teachers/Teacher';
+// import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { Group } from '../groups/Group';
-import { CenterScheduleHour } from './CenterScheduleHour';
+import { CenterScheduleHour } from '../centerSchedules/CenterScheduleHour';
 import { checkLogin } from '../auth/AuthHelpers';
 
 interface ScheduleData {
   id?: number;
   data: {
+    course: number;
+  };
+}
+
+interface ScheduleHourData {
+  id?: number;
+  data: {
+    schedule_id: number | undefined;
+    classroom_name: string;
+    subject_name: string;
+    week_day: number;
+    n_hour: number;
     course: number;
   };
 }
@@ -32,6 +44,7 @@ function SchedulesPage() {
   const [centerScheduleHours, setCenterScheduleHours] = useState<CenterScheduleHour[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalEditHourOpen, setIsModalEditHourOpen] = useState(false);
 
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
@@ -73,7 +86,7 @@ function SchedulesPage() {
         "order_bys": "n_hour"
       }
     });
-    if(centerScheduleHoursResponse){
+    if (centerScheduleHoursResponse) {
       setCenterScheduleHours(centerScheduleHoursResponse);
     }
 
@@ -88,16 +101,6 @@ function SchedulesPage() {
       }
     });
 
-    const teachersResponse = await fetchData("list_teachers", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
-      "list_options": {
-        "order_bys": "id",
-        "offset": (currentPage - 1) * itemsPerPage,
-      }
-    });
-
     const usersResponse = await fetchData("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
@@ -105,7 +108,7 @@ function SchedulesPage() {
       "list_options": {}
     });
 
-    
+
     const groupsResponse = await fetchData("list_groups", {
       "filters": {
         "id": { "$gte": 1000 }
@@ -113,29 +116,19 @@ function SchedulesPage() {
       "list_options": {}
     });
 
-    
-    if (teachersResponse && usersResponse && schedulesResponse && groupsResponse) {
-      const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
-        const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
-        const user = usersMap.get(teacher.user_id);
+
+    if (usersResponse && schedulesResponse && groupsResponse) {
+      const scheduleWithUsers = schedulesResponse.map((schedule: Schedule) => {
+        const userMap = new Map(usersResponse.map((user: User) => [user.id, user]));
+        const user = userMap.get(schedule.user_id);
         if (user) {
-          teacher.user = new User(user);
-        }
-
-        return new Teacher(teacher);
-      });
-
-      const scheduleWithTeachers = schedulesResponse.map((schedule: Schedule) => {
-        const teacherMap = new Map(teachersWithDetails.map((teacher: Teacher) => [teacher.id, teacher]));
-        const teacher = teacherMap.get(schedule.teacher_id);
-        if (teacher) {
-          schedule.teacher = new Teacher(teacher);
+          schedule.user = new User(user);
         }
 
         return new Schedule(schedule);
       });
 
-      const schedulesWithAllData = scheduleWithTeachers.map((schedule: Schedule) => {
+      const schedulesWithAllData = scheduleWithUsers.map((schedule: Schedule) => {
         const groupsMap = new Map(groupsResponse.map((group: Group) => [group.id, group]));
         const group = groupsMap.get(schedule.group_id);
         if (group) {
@@ -161,6 +154,21 @@ function SchedulesPage() {
 
     if (allScheduless) {
       setTotalSchedules(allScheduless.length);
+    }
+  }
+
+  async function fetchScheduleHoures(scheduleId: number) {
+    try {
+      const scheduleHoursResponse = await fetchData("list_schedule_hours", {
+        "filters": {
+          "schedule_id": scheduleId
+        }
+      });
+      if (scheduleHoursResponse) {
+        setScheduleHours(scheduleHoursResponse);
+      }
+    } catch (error) {
+      console.error("Error fetching schedule hours:", error);
     }
   }
 
@@ -197,8 +205,36 @@ function SchedulesPage() {
       if (schedules.length === itemsPerPage) {
         setCurrentPage(currentPage + 1);
       }
-      fetchAllData();
     }
+    fetchAllData();
+  };
+
+  const handleCreateOrUpdateScheduleHour = async (schedule: ScheduleHour) => {
+    const update = schedule.id ? true : false;
+    const method = update ? "update_schedule_hour" : "create_schedule_hour";
+    const data: ScheduleHourData = {
+      data: {
+        schedule_id: schedule.schedule_id,
+        classroom_name: schedule.classroom_name,
+        subject_name: schedule.subject_name,
+        week_day: schedule.week_day,
+        n_hour: schedule.n_hour,
+        course: schedule.course
+      }
+    };
+
+    if (update) {
+      data.id = schedule.id;
+    }
+
+    const responseData = await fetchData(method, data);
+
+    if (!responseData.id ? true : false) {
+      console.error(`Error al ${method === "update_schedule_hour" ? "actualizar" : "crear"} el departamento`);
+    }
+
+    if (selectedSchedule)
+      await handleViewScheduleDetails(selectedSchedule);
   };
 
   const handleDeleteSchedule = async (schedule: Schedule) => {
@@ -214,6 +250,20 @@ function SchedulesPage() {
         setCurrentPage(currentPage - 1);
       }
       fetchAllData();
+    } catch (error) {
+      if (error instanceof Error) {
+        notify(error.message);
+      }
+    }
+  };
+
+  const handleDeleteScheduleHour = async (scheduleHour: ScheduleHour) => {
+    try {
+      await fetchData("delete_schedule_hour", { "id": scheduleHour.id });
+      if (schedules.length === 1) {
+        setCurrentPage(currentPage - 1);
+      }
+      await fetchScheduleHoures(selectedSchedule?.id ? selectedSchedule?.id : 0);
     } catch (error) {
       if (error instanceof Error) {
         notify(error.message);
@@ -240,23 +290,15 @@ function SchedulesPage() {
   const handleViewScheduleDetails = async (schedule: Schedule) => {
     setSelectedSchedule(schedule);
     setIsModalOpen(true);
-
-    try {
-      const scheduleHoursResponse = await fetchData("list_schedule_hours", {
-        "filters": {
-          "schedule_id": schedule.id
-        }
-      });
-      if (scheduleHoursResponse) {
-        setScheduleHours(scheduleHoursResponse);
-      }
-    } catch (error) {
-      console.error("Error fetching schedule hours:", error);
-    }
+    await fetchScheduleHoures(schedule.id ? schedule.id : 0);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleCloseModalEditHour = () => {
+    setIsModalEditHourOpen(false);
   };
 
   useEffect(() => {
@@ -271,22 +313,14 @@ function SchedulesPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
+      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Horarios</h1>
       </div>
       <ScheduleList onCreate={handleCreateOrUpdateSchedule} onSave={handleCreateOrUpdateSchedule} schedules={schedules} onDelete={handleDeleteSchedule} onViewDetails={handleViewScheduleDetails} />
-      <Pagination
-        itemsPerPage={itemsPerPage}
-        handleItemsPerPageChange={handleItemsPerPageChange}
-        currentPage={currentPage}
-        handlePagination={handlePagination}
-        endPage={endPage}
-        startPage={startPage}
-        totalPages={totalPages}
-      />
+      <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
       {selectedSchedule && (
-        <ScheduleDetails isOpen={isModalOpen} onClose={handleCloseModal} schedule={selectedSchedule} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} />
+        <ScheduleDetails isOpen={isModalOpen} isModalEditHourOpen={isModalEditHourOpen} schedule={selectedSchedule} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} onClose={handleCloseModal} onCloseEdit={handleCloseModalEditHour} onEditScheduleHour={handleCreateOrUpdateScheduleHour} onDelete={handleDeleteScheduleHour} />
       )}
 
     </div>
@@ -294,3 +328,4 @@ function SchedulesPage() {
 }
 
 export default SchedulesPage;
+

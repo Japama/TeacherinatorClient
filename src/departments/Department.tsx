@@ -1,5 +1,5 @@
 export class Department {
-  id: string | undefined;
+  id: number | undefined;
   name: string = '';
 
   get isNew(): boolean {

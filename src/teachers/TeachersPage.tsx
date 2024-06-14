@@ -7,7 +7,6 @@ import { User } from '../users/User';
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
-import Cookies from 'js-cookie';
 import { checkLogin } from '../auth/AuthHelpers';
 
 interface TeacherData {
@@ -156,7 +155,7 @@ function TeachersPage() {
         "params": {
           "data": {
             "username": username,
-            "isadmin": false,
+            "is_admin": false,
             "pwd": "Contraseña"
           }
         }
@@ -261,8 +260,8 @@ function TeachersPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center bg-gray-500 w-10/12 mx-auto">
-      <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
+        <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
+      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Docentes</h1>
       </div>
       <TeacherList
