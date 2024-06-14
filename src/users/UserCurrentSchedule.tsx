@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
 import { CenterScheduleHour } from '../centerSchedules/CenterScheduleHour';
+import { useAuth } from '../auth/AuthContext';
+import { checkLogin } from '../auth/AuthHelpers';
 
 function UserCurrentSchedule() {
   const navigate = useNavigate();
+  const { getCurrentUser } = useAuth();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [currentCenterScheduleHour, setCurrentCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
   const [nextCenterScheduleHour, setNextCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
@@ -46,14 +48,6 @@ function UserCurrentSchedule() {
     }
   };
 
-  const checkLogin = () => {
-    const loggedInCookie = Cookies.get('loged_in');
-    if (loggedInCookie !== "true") {
-      navigate("/login");
-    }
-    return true;
-  };
-
   const fetchAllData = async () => {
 
     const centerScheduleHours: [CenterScheduleHour] = await fetchData("list_center_schedule_hours", {
@@ -83,7 +77,7 @@ function UserCurrentSchedule() {
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
-    const specificDate = new Date('2024-05-14T12:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
+    const specificDate = new Date('2024-05-16T12:35:00'); // Año-Mes-DíaTHora:Minuto:Segundo
     const probando = true;
     const currentTime = probando ? specificDate : new Date();
     const currentDayOfWeek = (currentTime.getDay() + 6) % 7;
@@ -164,7 +158,7 @@ function UserCurrentSchedule() {
   };
 
   useEffect(() => {
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
     fetchAllData();
   }, []);
 

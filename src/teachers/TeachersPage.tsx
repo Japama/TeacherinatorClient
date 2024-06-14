@@ -7,7 +7,6 @@ import { User } from '../users/User';
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
-import Cookies from 'js-cookie';
 import { checkLogin } from '../auth/AuthHelpers';
 
 interface TeacherData {

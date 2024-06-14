@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
-import IndexPage from '../index/IndexPage';
+import { checkLogin } from '../auth/AuthHelpers';
+import { useAuth } from '../auth/AuthContext';
 
 function UserCheckIn () {
   const navigate = useNavigate();
+  const { state, getCurrentUser } = useAuth();
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [lastActionTime, setLastActionTime] = useState('');
 
@@ -55,16 +56,7 @@ function UserCheckIn () {
   };
 
   useEffect(() => {
-
-    const checkLogin = () => {
-      const loggedInCookie = Cookies.get('loged_in');
-      if (loggedInCookie !== "true") {
-        navigate("/login");
-      }
-      return true;
-    };
-
-    checkLogin();
+    checkLogin(getCurrentUser, navigate);
 
     // Llama a get_current_user y establece el estado de isCheckedIn
     fetchData("get_current_user", {}).then(user => {
