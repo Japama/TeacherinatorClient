@@ -48,12 +48,6 @@ function CenterScheduleHourList({ centerScheduleHours, maxHour, onCreate, onSave
         return acc;
     }, {} as { [key: number]: CenterScheduleHour[] });
 
-    const openForm = () => {
-        setIsModalOpen(true);
-    };
-
-    const hours = Array.from({ length: maxHour }, (_, i) => i); // Asume que n_hour es un número de 0 a 23
-
     return (
         <div className="overflow-x-auto">
             {scheduleBeingEdited && (
@@ -68,9 +62,9 @@ function CenterScheduleHourList({ centerScheduleHours, maxHour, onCreate, onSave
                     schedules={centerScheduleHours}
                 />
             )}
-            <table className="min-w-full border border-gray-200 bg-white shadow-lg text-center">
-                <thead>
-                    <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">
+        <table className="min-w-full border border-gray-200 bg-white shadow-lg text-center">
+            <thead>
+                <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">  
                         <th className="px-6 py-4 text-center">Nº de hora</th>
                         <th className="px-6 py-4 text-center">Hora inicio</th>
                         <th className="px-6 py-4 text-center">Hora fin</th>
@@ -78,11 +72,11 @@ function CenterScheduleHourList({ centerScheduleHours, maxHour, onCreate, onSave
                 </thead>
                 <tbody>
                     {centerScheduleHours.map(hour => (
-                        <tr key={hour.id} className="h-[70px] border-b bg-gray-700 text-[#FFFFFF] hover:bg-slate-500">
+                        <tr key={hour.id} className="h-[70px] border-b  bg-gray-100 text-gray-800 hover:bg-slate-500">
                             <ScheduleCard centerScheduleHour={hour} onEdit={handleEdit} onDelete={onDelete} onViewDetails={onViewDetails} />
                         </tr>
                     ))}
-                    < tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]"  onClick={() => handleClick(maxHour)}  >
+                    < tr className="h-[70px] border-b  bg-gray-100 text-gray-800"  onClick={() => handleClick(maxHour)}  >
                         <td colSpan={3} className="px-6 py-4 text-center">➕</td>
                     </tr>
                 </tbody>

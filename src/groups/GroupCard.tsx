@@ -1,5 +1,5 @@
 import { Group } from './Group';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
 // import Modal from './Modal';
@@ -55,7 +55,7 @@ function GroupCard(props: GroupCardProps) {
     return (
         <>
             {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} group={group} /> */}
-            <tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]">
+        <tr className="h-[70px] border-b bg-gray-100 text-gray-800">
                 {/* <td className="px-6 py-4 text-center"><input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" /></td> */}
                 <td className="px-6 py-4 text-center">{group.year}</td>
                 <td className="px-6 py-4 text-center">{group.course}º {getStageText(group.stage)} {group.letter}</td>

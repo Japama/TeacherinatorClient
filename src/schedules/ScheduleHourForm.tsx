@@ -27,7 +27,6 @@ function ScheduleHourForm(props: ScheduleHourFormProps) {
     };
 
     const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = Number(event.target.value);
         const updatedScheduleHour = new ScheduleHour({ ...editedScheduleHour, [event.target.name]: event.target.value });
         setEditedScheduleHour(updatedScheduleHour);
     };
@@ -36,7 +35,7 @@ function ScheduleHourForm(props: ScheduleHourFormProps) {
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar esta hroa?',
+            message: '¿Estás seguro de que quieres eliminar esta hora?',
             buttons: [
                 {
                     label: 'Sí',

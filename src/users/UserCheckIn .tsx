@@ -87,7 +87,7 @@ function UserCheckIn () {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-2/3 bg-gradient-to-r from-blue-400 to-purple-600 py-20">
+    <div className="flex flex-col items-center justify-center h-2/3 bg-slate-300 py-20">
       <div className="p-6 rounded-lg shadow-lg bg-white max-w-sm">
         <h1 className="text-2xl font-bold mb-4">Control de Asistencia</h1>
         <button

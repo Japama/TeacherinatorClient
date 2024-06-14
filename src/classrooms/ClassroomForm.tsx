@@ -12,7 +12,7 @@ interface ClassroomFormProps {
 }
 
 function ClassroomForm(props: ClassroomFormProps) {
-    const { isOpen, isCreate, onClose, onEdit, onCreate, classroom } = props;
+    const { isOpen, onClose, onEdit, onCreate, classroom } = props;
     const [editedClassroom, setEditedClassroom] = useState(classroom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,7 @@ function ClassroomForm(props: ClassroomFormProps) {
     return (
         <div className="modal" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="rounded-md modal-content w-full mx-auto lg:w-[500px] drop-shadow-lg bg-white p-12" style={{ position: 'relative', margin: '0 auto', top: '50%', transform: 'translateY(-50%)' }}>
-                <h1 className="backdrop-blur-sm text-4xl pb-8">  {classroom.id ? 'Editar departamento' : 'Crear departamento'}</h1>
+                <h1 className="backdrop-blur-sm text-4xl pb-8">  {classroom.id ? 'Editar aula' : 'Crear aula'}</h1>
                 <form id="classroomForm" onSubmit={handleSubmit} className="space-y-5">
                     <div className="relative">
                         <label htmlFor="building" className="block">Edificio</label>

@@ -11,8 +11,8 @@ interface DepartmentCardProps {
 }
 
 function DepartmentCard(props: DepartmentCardProps) {
-    const { department, onEdit, onDelete } = props;
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { department, onEdit } = props;
+    const [setIsModalOpen] = useState(false);
 
     const handleEditClick = () => {
         onEdit(department);
@@ -34,15 +34,10 @@ function DepartmentCard(props: DepartmentCardProps) {
         });
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
-
-
     return (
         <>
             {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} department={department} /> */}
-            <tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]">
+        <tr className="h-[70px] border-b bg-gray-100 text-gray-800">
                 {/* <td className="px-6 py-4 text-center">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                 </td> */}

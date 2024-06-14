@@ -42,7 +42,7 @@ function ClassroomCard(props: ClassroomCardProps) {
     return (
         <>
             {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} classroom={classroom} /> */}
-            <tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]">
+        <tr className="h-[70px] border-b bg-gray-100 text-gray-800">
                 {/* <td className="px-6 py-4 text-center">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                 </td> */}

@@ -22,7 +22,7 @@ function CenterScheduleHoursPage() {
   const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(5);
   const [selectedCenterScheduleHour, setSelectedCenterScheduleHour] = useState<CenterScheduleHour | null>(null);
   const [centerScheduleHours, setCenterScheduleHours] = useState<CenterScheduleHour[]>([]);
   const [maxHour, setMaxHour] = useState(0);
@@ -150,9 +150,6 @@ function CenterScheduleHoursPage() {
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
 
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);

@@ -12,7 +12,7 @@ interface DepartmentFormProps {
 }
 
 function DepartmentForm(props: DepartmentFormProps) {
-    const { isOpen, isCreate, onClose, onEdit, onCreate, department } = props;
+    const { isOpen, onClose, onEdit, onCreate, department } = props;
     const [editedDepartment, setEditedDepartment] = useState(department);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

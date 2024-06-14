@@ -14,7 +14,7 @@ function DepartmentList({ departments, onCreate, onSave, onDelete }: DepartmentL
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreate, setisCreate] = useState(false);
     const [departmentBeingEdited, setDepartmentBeingEdited] = useState<Department | null>(null);
-    const [departmentBeingCreated, setDepartmentBeingCreated] = useState<Department | null>(null);
+    const [departmentBeingCreated] = useState<Department | null>(null);
 
     const handleEdit = (department: Department) => {
         setDepartmentBeingEdited(department);
@@ -67,9 +67,9 @@ function DepartmentList({ departments, onCreate, onSave, onDelete }: DepartmentL
                     departments={departments}
                 />
             )}
-            <table className="min-w-full border border-gray-200 bg-white shadow-lg text-center">
-                <thead>
-                    <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">
+        <table className="min-w-full border border-gray-200 bg-white shadow-lg text-center">
+            <thead>
+                <tr className="h-[70px] border-b bg-[#141B29] text-[#FFFFFF]">  
                         {/* <th className="w-[50px] px-6 py-4 text-center ">
                             <input type="checkbox" id="myCheckbox" className="flex h-6 w-6 items-center rounded-full  border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                         </th> */}

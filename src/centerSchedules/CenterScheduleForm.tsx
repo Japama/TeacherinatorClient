@@ -35,16 +35,10 @@ function CenterScheduleHourForm(props: CenterScheduleHourFormProps) {
         setEditedCenterScheduleHour(updatedCenterScheduleHour);
     };
 
-    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = Number(event.target.value);
-        const updatedCenterScheduleHour = new CenterScheduleHour({ ...editedCenterScheduleHour, [event.target.name]: value });
-        setEditedCenterScheduleHour(updatedCenterScheduleHour);
-    };
-
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar esta hroa?',
+            message: '¿Estás seguro de que quieres eliminar esta hora?',
             buttons: [
                 {
                     label: 'Sí',

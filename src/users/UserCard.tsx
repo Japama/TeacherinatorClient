@@ -40,7 +40,7 @@ function UserCard(props: UserCardProps) {
                 </td> */}
                 <td className="px-6 py-4 text-center"> {user.username} </td>
                 <td className="px-6 py-4 text-center"> {user.is_admin ? '✅' : '❌'} </td>
-                <td className="px-6 py-4 text-center"> {user.department_id != 1 ? '✅' : '❌'} </td>
+                <td className="px-6 py-4 text-center"> {user.department_id !== 1 ? '✅' : '❌'} </td>
                 <td className="px-6 py-4 text-center"> {user.department !== null ? user.department?.name : '❌'} </td>
                 <td className="px-6 py-4 text-center"> {user.active ? '✅' : '❌'} </td>
                 <td className="px-6 py-4 text-center">
