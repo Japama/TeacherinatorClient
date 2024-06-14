@@ -93,7 +93,7 @@ function CenterScheduleHourForm(props: CenterScheduleHourFormProps) {
                 <h1 className="backdrop-blur-sm text-4xl pb-8">  {schedule.id ? 'Editar hora' : 'Crear hora'}</h1>
                 <form id="scheduleForm" onSubmit={handleSubmit} className="space-y-5">
                     {/* <div className="relative">
-                        <label htmlFor="week_day" className="block">Día de la semana:</label>
+                        <label htmlFor="week_day" className="block">Día de la semana</label>
                         <select id="week_day" name="week_day" value={editedCenterScheduleHour.week_day} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" disabled={!isCreate}>
                             <option value="0">Lunes</option>
                             <option value="1">Martes</option>
@@ -103,15 +103,15 @@ function CenterScheduleHourForm(props: CenterScheduleHourFormProps) {
                         </select>
                     </div> */}
                     <div className="relative">
-                        <label htmlFor="n_hour" className="block">Nº de hora:</label>
+                        <label htmlFor="n_hour" className="block">Nº de hora</label>
                         <input id="n_hour" type="number" name="n_hour" required value={editedCenterScheduleHour.n_hour + 1} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" readOnly={!isCreate} />
                     </div>
                     <div className="relative">
-                        <label htmlFor="start_time" className="block">Hora de inicio:</label>
+                        <label htmlFor="start_time" className="block">Hora de inicio</label>
                         <input id="start_time" type="time" name="start_time" required value={formatTime(editedCenterScheduleHour.start_time)} onChange={handleChangeHour} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     <div className="relative">
-                        <label htmlFor="end_time" className="block">Hora de final:</label>
+                        <label htmlFor="end_time" className="block">Hora de final</label>
                         <input id="end_time" type="time" name="end_time" required value={formatTime(editedCenterScheduleHour.end_time)} onChange={handleChangeHour} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
 

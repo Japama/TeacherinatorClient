@@ -164,27 +164,27 @@ function UserCurrentSchedule() {
 
   const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   return (
-    <div className="p-5">
+    <div className="p-5 mt-8">
       {currentScheduleHour && (
-        <div className="bg-blue-100 p-4 rounded-lg mb-5">
+        <div className="bg-blue-100 p-4 rounded-lg mb-5 w-3/6 mx-auto">
           <h2 className="text-xl font-bold mb-2">Horario Actual</h2>
-          <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[currentScheduleHour.week_day]}</p>
-          <p><span className="font-bold">Asignatura:</span> {currentScheduleHour.subject_name}</p>
-          <p><span className="font-bold">Aula:</span> {currentScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.start_time) : ''}</p>
-          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.end_time) : ''}</p>
-          <p><span className="font-bold">Observaciones:</span> {currentScheduleHour.notes}</p>
+          <p><span className="font-bold">Día de la semana</span> {daysOfWeek[currentScheduleHour.week_day]}</p>
+          <p><span className="font-bold">Asignatura</span> {currentScheduleHour.subject_name}</p>
+          <p><span className="font-bold">Aula</span> {currentScheduleHour.classroom_name}</p>
+          <p><span className="font-bold">Hora de inicio</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin</span> {centerScheduleHours && currentScheduleHour && currentCenterScheduleHour ? formatTime(currentCenterScheduleHour.end_time) : ''}</p>
+          <p><span className="font-bold">Observaciones</span> {currentScheduleHour.notes}</p>
         </div>
       )}
       {nextScheduleHour && (
-        <div className="bg-green-100 p-4 rounded-lg">
+        <div className="bg-green-100 p-4 rounded-lg w-3/6 mx-auto">
           <h2 className="text-xl font-bold mb-2">Próximo Horario</h2>
-          <p><span className="font-bold">Día de la semana:</span> {daysOfWeek[nextScheduleHour.week_day]}</p>
-          <p><span className="font-bold">Asignatura:</span> {nextScheduleHour.subject_name}</p>
-          <p><span className="font-bold">Aula:</span> {nextScheduleHour.classroom_name}</p>
-          <p><span className="font-bold">Hora de inicio:</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.start_time) : ''}</p>
-          <p><span className="font-bold">Hora de fin:</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.end_time) : ''}</p>
-          <p><span className="font-bold">Observaciones:</span> {nextScheduleHour.notes}</p>
+          <p><span className="font-bold">Día de la semana</span> {daysOfWeek[nextScheduleHour.week_day]}</p>
+          <p><span className="font-bold">Asignatura</span> {nextScheduleHour.subject_name}</p>
+          <p><span className="font-bold">Aula</span> {nextScheduleHour.classroom_name}</p>
+          <p><span className="font-bold">Hora de inicio</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.start_time) : ''}</p>
+          <p><span className="font-bold">Hora de fin</span> {centerScheduleHours && nextScheduleHour && nextCenterScheduleHour ? formatTime(nextCenterScheduleHour.end_time) : ''}</p>
+          <p><span className="font-bold">Observaciones</span> {nextScheduleHour.notes}</p>
         </div>
       )}
     </div>
