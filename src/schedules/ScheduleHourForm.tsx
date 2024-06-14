@@ -63,22 +63,22 @@ function ScheduleHourForm(props: ScheduleHourFormProps) {
                 <h1 className="backdrop-blur-sm text-4xl pb-8">  {editedScheduleHour.id ? 'Editar hora' : 'Crear hora'}</h1>
                 <form id="scheduleForm" onSubmit={handleSubmit} className="space-y-5">
                     {/* <div className="relative">
-                        <label htmlFor="schedule_id" className="block">Horario:</label>
+                        <label htmlFor="schedule_id" className="block">Horario</label>
                         <input id="schedule_id" type="number" name="schedule_id" required value={editedScheduleHour.schedule_id} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div> */}
 
                     <input id="schedule_id" type="hidden" name="schedule_id" required value={editedScheduleHour.schedule_id} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     <div className="relative">
-                        <label htmlFor="subject_name" className="block">Asignatura:</label>
+                        <label htmlFor="subject_name" className="block">Asignatura</label>
                         <input id="subject_name" type="text" name="subject_name" required value={editedScheduleHour.subject_name} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
 
                     <div className="relative">
-                        <label htmlFor="classroom_name" className="block">Clase:</label>
+                        <label htmlFor="classroom_name" className="block">Clase</label>
                         <input id="classroom_name" type="text" name="classroom_name" required value={editedScheduleHour.classroom_name} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     <div className="relative">
-                        <label htmlFor="week_day" className="block">Día de la semana:</label>
+                        <label htmlFor="week_day" className="block">Día de la semana</label>
                         <select id="week_day" name="week_day" value={editedScheduleHour.week_day} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" disabled={!isCreate}>
                             <option value="0">Lunes</option>
                             <option value="1">Martes</option>
@@ -88,12 +88,12 @@ function ScheduleHourForm(props: ScheduleHourFormProps) {
                         </select>
                     </div>
                     <div className="relative">
-                        <label htmlFor="n_hour" className="block">Nº clase:</label>
+                        <label htmlFor="n_hour" className="block">Nº clase</label>
                         <input id="n_hour" type="text" name="n_hour" required value={(editedScheduleHour.n_hour + 1) + "ª"} onChange={handleChange} readOnly={true} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     {/* 
                     <div className="relative">
-                        <label htmlFor="name" className="block">Nombre:</label>
+                        <label htmlFor="name" className="block">Nombre</label>
                         <input id="name" type="text" name="name" required value={editedScheduleHour.course} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div> */}
                     <button type="submit" form="scheduleForm" className="rounded-md  py-2 px-5 mb-4 mt-6 shadow-lg before:block before:-left-1 before:-top-1 before:bg-black before:absolute before:h-0 before:w-0 before:hover:w-[100%] before:hover:h-[100%]  before:duration-500 before:-z-40 after:block after:-right-1 after:-bottom-1 after:bg-black after:absolute after:h-0 after:w-0 after:hover:w-[100%] after:hover:h-[100%] after:duration-500 after:-z-40 bg-white relative inline-block">

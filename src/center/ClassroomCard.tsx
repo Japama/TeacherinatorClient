@@ -1,29 +1,31 @@
-import { User } from './User';
+import { Classroom } from './Classroom';
+import React, { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
 // import Modal from './Modal';
 
-interface UserCardProps {
-    user: User;
-    onEdit: (user: User) => void;
-    onDelete: (user: User) => void;
+interface ClassroomCardProps {
+    classroom: Classroom;
+    onEdit: (classroom: Classroom) => void;
+    onDelete: (classroom: Classroom) => void;
 }
 
-function UserCard(props: UserCardProps) {
-    const { user, onEdit } = props;
+function ClassroomCard(props: ClassroomCardProps) {
+    const { classroom, onEdit, onDelete } = props;
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleEditClick = () => {
-        onEdit(user);
+        onEdit(classroom);
     };
 
     const handleDeleteClick = () => {
         confirmAlert({
             title: 'Confirmar eliminación',
-            message: '¿Estás seguro de que quieres eliminar este usuario? Se eliminarán también sus horarios',
+            message: '¿Seguro que quieres eliminar este departamento?',
             buttons: [
                 {
                     label: 'Sí',
-                    onClick: () => props.onDelete(user)
+                    onClick: () => props.onDelete(classroom)
                 },
                 {
                     label: 'No',
@@ -32,17 +34,36 @@ function UserCard(props: UserCardProps) {
         });
     };
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+
     return (
         <>
-        <tr className="h-[70px] border-b bg-gray-100 text-gray-800">
+            {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} classroom={classroom} /> */}
+            <tr className="h-[70px] border-b bg-gray-700 text-[#FFFFFF]">
                 {/* <td className="px-6 py-4 text-center">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                 </td> */}
-                <td className="px-6 py-4 text-center"> {user.username} </td>
-                <td className="px-6 py-4 text-center"> {user.is_admin ? '✅' : '❌'} </td>
-                <td className="px-6 py-4 text-center"> {user.department_id != 1 ? '✅' : '❌'} </td>
-                <td className="px-6 py-4 text-center"> {user.department !== null ? user.department?.name : '❌'} </td>
-                <td className="px-6 py-4 text-center"> {user.active ? '✅' : '❌'} </td>
+                <td className="px-6 py-4 text-center">
+                    {classroom.name}
+                </td>
+                <td className="px-6 py-4 text-center">
+                    {classroom.building}
+                </td>
+                <td className="px-6 py-4 text-center">
+                    {classroom.floor}
+                </td>
+                <td className="px-6 py-4 text-center">
+                    {classroom.number}
+                </td>   
+                <td className="px-6 py-4 text-center">
+                    {classroom.type_c}
+                </td>
+                <td className="px-6 py-4 text-center">
+                    {classroom.description}
+                </td>
                 <td className="px-6 py-4 text-center">
                     <button onClick={handleEditClick} className="flex items-center rounded-full bg-blue-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-blue-700 mx-auto">
                         Editar
@@ -59,4 +80,4 @@ function UserCard(props: UserCardProps) {
     );
 }
 
-export default UserCard;
+export default ClassroomCard;

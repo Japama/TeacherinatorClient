@@ -160,7 +160,7 @@ function CenterScheduleHoursPage() {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="items-center justify-center bg-transparent w-10/12 mx-auto mb-8">
+<div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
       <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Horario del centro</h1>
       </div>

@@ -226,7 +226,7 @@ function UsersPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto">
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
       <div className='m-4 text-3xl font-semibold text-white'>
         <h1>Usuarios</h1>
       </div>

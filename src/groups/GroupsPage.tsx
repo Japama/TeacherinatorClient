@@ -194,7 +194,7 @@ function GroupsPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-    <div className="items-center justify-center  bg-transparent w-10/12 mx-auto">
+        <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
       <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Grupos</h1>
       </div>

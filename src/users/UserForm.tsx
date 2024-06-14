@@ -70,11 +70,11 @@ function UserForm(props: UserFormProps) {
                 <h1 className="backdrop-blur-sm text-4xl pb-8">  {user.id ? 'Editar usuario' : 'Crear usuario'}</h1>
                 <form id="userForm" onSubmit={handleSubmit} className="space-y-5">
                     <div className="relative">
-                        <label htmlFor="username" className="block">Nombre:</label>
+                        <label htmlFor="username" className="block">Nombre</label>
                         <input id="username" type="text" name="username" required value={editedUser.username} onChange={handleChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     <div className="relative">
-                        <label htmlFor="is_admin" className="block">Administador:</label>
+                        <label htmlFor="is_admin" className="block">Administador</label>
                         <input
                             id="is_admin"
                             type="checkbox"
@@ -86,7 +86,7 @@ function UserForm(props: UserFormProps) {
                     </div>
                     {!isCreate && (
                         <div className="relative">
-                            <label htmlFor="changePassword" className="block">Cambiar contraseña:</label>
+                            <label htmlFor="changePassword" className="block">Cambiar contraseña</label>
                             <input
                                 id="changePassword"
                                 type="checkbox"
@@ -97,7 +97,7 @@ function UserForm(props: UserFormProps) {
                     )}
                     {(isCreate || isChangePasswordChecked) && (
                         <div className="relative">
-                            <label htmlFor="pwd" className="block">Contraseña:</label>
+                            <label htmlFor="pwd" className="block">Contraseña</label>
                             <input
                                 id="pwd"
                                 type="password"
@@ -109,7 +109,7 @@ function UserForm(props: UserFormProps) {
                         </div>
                     )}
                     <div className="relative">
-                        <label htmlFor="departmentId" className="block">Nombre del Departamento:</label>
+                        <label htmlFor="departmentId" className="block">Nombre del Departamento</label>
                         <select id="departmentId" name="department_id" value={editedUser.department_id} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
                             {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
                             <option value={1}>Ninguno</option>
@@ -117,7 +117,7 @@ function UserForm(props: UserFormProps) {
                         </select>
                     </div>
                     <div className="relative">
-                        <label htmlFor="active" className="block">Activo:</label>
+                        <label htmlFor="active" className="block">Activo</label>
                         <input
                             id="active"
                             type="checkbox"
