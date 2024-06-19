@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Classroom } from './Classroom';
+import { ClassroomType } from '../classrooms_types/ClassroomType';
+import { Building } from '../buildings/Building';
 
 interface ClassroomFormProps {
     isOpen: boolean;
@@ -9,14 +11,22 @@ interface ClassroomFormProps {
     onCreate: (classroom: Classroom) => void;
     classroom: Classroom;
     classrooms: Classroom[];
+    classroomTypes: ClassroomType[];
+    buildings: Building[];
 }
 
 function ClassroomForm(props: ClassroomFormProps) {
-    const { isOpen, onClose, onEdit, onCreate, classroom } = props;
+    const { isOpen, isCreate, onClose, onEdit, onCreate, classroom, buildings, classroomTypes } = props;
     const [editedClassroom, setEditedClassroom] = useState(classroom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const updatedClassroom = new Classroom({ ...editedClassroom, [event.target.name]: event.target.value });
+        setEditedClassroom(updatedClassroom);
+    };
+
+    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = Number(event.target.value);
+        const updatedClassroom = new Classroom({ ...editedClassroom, [event.target.name]: value });
         setEditedClassroom(updatedClassroom);
     };
 
@@ -40,10 +50,11 @@ function ClassroomForm(props: ClassroomFormProps) {
             <div className="rounded-md modal-content w-full mx-auto lg:w-[500px] drop-shadow-lg bg-white p-12" style={{ position: 'relative', margin: '0 auto', top: '50%', transform: 'translateY(-50%)' }}>
                 <h1 className="backdrop-blur-sm text-4xl pb-8">  {classroom.id ? 'Editar aula' : 'Crear aula'}</h1>
                 <form id="classroomForm" onSubmit={handleSubmit} className="space-y-5">
-                    <div className="relative">
-                        <label htmlFor="building" className="block">Edificio</label>
-                        <input id="building" type="text" name="building" required value={editedClassroom.building} onChange={handleChange} className="text-center rounded-md p-3 block w-full px-10 drop-shadow-lg outline-none" />
-                    </div>
+                    <label htmlFor="building" className="block">Edificio</label>
+                    <select id="building" name="building" value={editedClassroom.building} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
+                        {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
+                        {buildings.map(build => <option key={build.id} value={build.id}>{build.building_name}</option>)}
+                    </select>
                     <div className="relative">
                         <label htmlFor="floor" className="block">Piso</label>
                         <input id="floor" type="number" name="floor" required value={editedClassroom.floor} onChange={handleChange} className="text-center rounded-md p-3 block w-full px-10 drop-shadow-lg outline-none" />
@@ -57,8 +68,11 @@ function ClassroomForm(props: ClassroomFormProps) {
                         <input id="name" type="text" name="name" required value={editedClassroom.name} onChange={handleChange} className="text-center rounded-md p-3 block w-full px-10 drop-shadow-lg outline-none" />
                     </div>
                     <div className="relative">
-                        <label htmlFor="type_c" className="block">Tipo</label>
-                        <input id="type_c" type="number" name="type_c" required value={editedClassroom.type_c} onChange={handleChange} className="text-center rounded-md p-3 block w-full px-10 drop-shadow-lg outline-none" />
+                    <label htmlFor="type_c" className="block">Tipo de aula</label>
+                        <select id="type_c" name="type_c" value={editedClassroom.type_c} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
+                            {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
+                            {classroomTypes.map(type => <option key={type.id} value={type.id}>{type.type_name}</option>)}
+                        </select>
                     </div>
                     <div className="relative">
                         <label htmlFor="description" className="block">Descripción</label>
@@ -76,7 +90,7 @@ function ClassroomForm(props: ClassroomFormProps) {
             </div>
         </div>
     );
-    
+
 }
 
 export default ClassroomForm;

@@ -1,21 +1,21 @@
-import { Classroom } from './Classroom';
+import { ClassroomType } from './ClassroomType';
 import { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
 // import Modal from './Modal';
 
-interface ClassroomCardProps {
-    classroom: Classroom;
-    onEdit: (classroom: Classroom) => void;
-    onDelete: (classroom: Classroom) => void;
+interface ClassroomTypeCardProps {
+    classroomtype: ClassroomType;
+    onEdit: (classroomtype: ClassroomType) => void;
+    onDelete: (classroomtype: ClassroomType) => void;
 }
 
-function ClassroomCard(props: ClassroomCardProps) {
-    const { classroom, onEdit } = props;
+function ClassroomTypeCard(props: ClassroomTypeCardProps) {
+    const { classroomtype, onEdit } = props;
     const [setIsModalOpen] = useState(false);
 
     const handleEditClick = () => {
-        onEdit(classroom);
+        onEdit(classroomtype);
     };
 
     const handleDeleteClick = () => {
@@ -25,7 +25,7 @@ function ClassroomCard(props: ClassroomCardProps) {
             buttons: [
                 {
                     label: 'Sí',
-                    onClick: () => props.onDelete(classroom)
+                    onClick: () => props.onDelete(classroomtype)
                 },
                 {
                     label: 'No',
@@ -36,28 +36,13 @@ function ClassroomCard(props: ClassroomCardProps) {
 
     return (
         <>
-            {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} classroom={classroom} /> */}
+            {/* <Modal isOpen={isModalOpen} onClose={closeModal} onEdit={onEdit} classroomtype={classroomtype} /> */}
             <tr className="h-[70px] border-b bg-gray-100 text-gray-800">
                 {/* <td className="px-6 py-4 text-center">
                     <input type="checkbox" id="myCheckbox" className="flex h-6 w-6  items-center rounded-full border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                 </td> */}
                 <td className="px-6 py-4 text-center">
-                    {classroom.name}
-                </td>
-                <td className="px-6 py-4 text-center">
-                    {classroom.building_object?.building_name}
-                </td>
-                <td className="px-6 py-4 text-center">
-                    {classroom.floor}
-                </td>
-                <td className="px-6 py-4 text-center">
-                    {classroom.number}
-                </td>
-                <td className="px-6 py-4 text-center">
-                    {classroom.type_c_object?.type_name}
-                </td>
-                <td className="px-6 py-4 text-center">
-                    {classroom.description}
+                    {classroomtype.type_name}
                 </td>
                 <td className="px-6 py-4 text-center">
                     <button onClick={handleEditClick} className="flex items-center rounded-full bg-blue-600 px-4 py-2 font-bold text-white shadow-md transition-all duration-300 hover:bg-blue-700 mx-auto">
@@ -75,4 +60,4 @@ function ClassroomCard(props: ClassroomCardProps) {
     );
 }
 
-export default ClassroomCard;
+export default ClassroomTypeCard;

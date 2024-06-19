@@ -86,11 +86,11 @@ function UsersPage() {
           "order_bys": "id"
         }
       });
-      if (departmentsResponse ) {
+      if (departmentsResponse) {
         setDepartmens(departmentsResponse);
         const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
         const usersWithDetails = usersResponse.map((user: User) => {
-        const department = departmentsMap.get(user.department_id);
+          const department = departmentsMap.get(user.department_id);
 
           // Asegúrate de que el departamento y el usuario existen antes de intentar acceder a sus propiedades.
           if (department) {
@@ -99,9 +99,9 @@ function UsersPage() {
           return new User(user);
         });
         setUsers(usersWithDetails);
-    } else{
-      setUsers(usersResponse);
-    }
+      } else {
+        setUsers(usersResponse);
+      }
     }
   }
 
@@ -126,7 +126,7 @@ function UsersPage() {
 
   const handleCreateOrUpdateUser = async (user: User, changePassword: boolean) => {
     const update = user.id ? true : false;
-    
+
     const method = !update ? "create_user" : "update_user_pwd";
     const data: UserData = {
       data: {
