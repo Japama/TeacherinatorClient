@@ -6,11 +6,13 @@ import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
 import { checkLogin } from '../auth/AuthHelpers';
+import { Building } from '../buildings/Building';
+import { ClassroomType } from '../classrooms_types/ClassroomType';
 
 interface ClassroomData {
   id?: number;
   data: {
-    building: string;
+    building: number;
     floor: number;
     number: number;
     name: string;
@@ -23,6 +25,8 @@ function ClassroomsPage() {
   const { state, getCurrentUser } = useAuth();
   const navigate = useNavigate();
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [classroomTypes, setClassroomTypes] = useState<ClassroomType[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
   const [totalClassrooms, setTotalClassrooms] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -71,7 +75,44 @@ function ClassroomsPage() {
       }
     });
     if (classroomsResponse) {
-      setClassrooms(classroomsResponse);
+      const classroomTypesResponse = await fetchData("list_classroom_types", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id"
+        }
+      });
+      const buildingsResponse = await fetchData("list_buildings", {
+        "filters": {
+          "id": { "$gte": 1000 }
+        },
+        "list_options": {
+          "order_bys": "id"
+        }
+      });
+      if (classroomTypesResponse && buildingsResponse) {
+        setClassroomTypes(classroomTypesResponse);
+        setBuildings(buildingsResponse);
+        const classrommTypesMap = new Map(classroomTypesResponse.map((type: ClassroomType) => [type.id, type]));
+        const buildingsMap = new Map(buildingsResponse.map((building: Building) => [building.id, building]));
+        const classRoomsWithDetails = classroomsResponse.map((classroom: Classroom) => {
+          const type = classrommTypesMap.get(classroom.type_c);
+          const building = buildingsMap.get(classroom.building);
+
+          if (type) {
+            classroom.type_c_object = new ClassroomType(type);
+          }
+          if (building) {
+            classroom.building_object = new Building(building);
+          }          
+          return new Classroom(classroom);
+        });
+
+        setClassrooms(classRoomsWithDetails);
+      } else {
+        setClassrooms(classroomsResponse);
+      }
     }
   }
 
@@ -113,6 +154,8 @@ function ClassroomsPage() {
       data.id = classroom.id;
     }
 
+    console.log(data);
+
     const responseData = await fetchData(method, data);
 
     if (!responseData.id ? true : false) {
@@ -134,12 +177,6 @@ function ClassroomsPage() {
 
   const handleDeleteClassroom = async (classroom: Classroom) => {
     try {
-
-      if (await fetchData("count_users_by_classroom", { "id": classroom.id }) > 0) {
-        notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
-        return;
-      }
-
       await fetchData("delete_classroom", { "id": classroom.id });
       if (classrooms.length === 1) {
         setCurrentPage(currentPage - 1);
@@ -184,7 +221,7 @@ function ClassroomsPage() {
       <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Aulas</h1>
       </div>
-      <ClassroomList onCreate={handleCreateOrUpdateClassroom} onSave={handleCreateOrUpdateClassroom} classrooms={classrooms} onDelete={handleDeleteClassroom} />
+      <ClassroomList  classrooms={classrooms} classroomTypes={classroomTypes} buildings={buildings} onCreate={handleCreateOrUpdateClassroom} onSave={handleCreateOrUpdateClassroom} onDelete={handleDeleteClassroom} />
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}

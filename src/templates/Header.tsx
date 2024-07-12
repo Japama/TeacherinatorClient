@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { useAuth } from '../auth/AuthContext';
 import { checkLogin } from '../auth/AuthHelpers';
 import NavItem from './NavItem';
+import DropNavItem from './DropNavItem';
 
 function Header() {
   const { state, logout, getCurrentUser } = useAuth();
@@ -25,10 +26,10 @@ function Header() {
   const handleClick = () => {
     confirmAlert({
       title: 'Confirmar salida',
-      message: '¿Quieres salir?',
+      message: 'ï¿½Quieres salir?',
       buttons: [
         {
-          label: 'Sí',
+          label: 'SÃ­',
           onClick: () => logoutMethod()
         },
         {
@@ -61,8 +62,10 @@ function Header() {
       <ul className="hidden md:flex items-center gap-6">
         {state.isAdmin && <NavItem to="/users" label="Usuarios" />}
         {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
+        {/* {state.isAdmin && <NavItem to="/buildings" label="Edificios" />} */}
         {state.isAdmin && <NavItem to="/center" label="Centro" />}
-        {state.isAdmin && <NavItem to="/classrooms" label="Aulas" />}
+        {/* {state.isAdmin && <NavItem to="/classrooms" label="Aulas" />}
+        {state.isAdmin && <NavItem to="/classroomTypes" label="Tipos de aulas" />} */}
         {state.isAdmin && <NavItem to="/groups" label="Grupos" />}
         {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
         {state.isAdmin && <NavItem to="/centerSchedule" label="Horario centro" />}
@@ -81,14 +84,16 @@ function Header() {
         </svg>
         {dropDownState && (
           <ul className="absolute right-0 top-10 bg-gray-200 dark:bg-gray-800 rounded-lg shadow-lg flex flex-col w-48 text-black dark:text-white">
-            {state.isAdmin && <NavItem to="/users" label="Usuarios" />}
-            {state.isAdmin && <NavItem to="/departments" label="Departamentos" />}
-            {state.isAdmin && <NavItem to="/center" label="Centro" />}
-            {state.isAdmin && <NavItem to="/classrooms" label="Aulas" />}
-            {state.isAdmin && <NavItem to="/schedules" label="Horarios" />}
-            {state.isAdmin && <NavItem to="/centerSchedule" label="Horario centro" />}
-            <NavItem to="/current" label="Tareas" />
-            <NavItem to="/checkin" label="Fichar" />
+            {state.isAdmin && <DropNavItem to="/users"  children="Usuarios" />}
+            {state.isAdmin && <DropNavItem to="/departments" children="Departamentos" />}
+            {/* {state.isAdmin && <DropNavItem to="/buildings" children="Edificios" />} */}
+            {state.isAdmin && <DropNavItem to="/center" children="Centro" />}
+            {/* {state.isAdmin && <DropNavItem to="/classrooms" children="Aulas" />}
+            {state.isAdmin && <DropNavItem to="/classroomTypes" children="Tipos de aulas" />} */}
+            {state.isAdmin && <DropNavItem to="/schedules" children="Horarios" />}
+            {state.isAdmin && <DropNavItem to="/centerSchedule" children="Horario centro" />}
+            <DropNavItem to="/current" children="Tareas" />
+            <DropNavItem to="/checkin" children="Fichar" />
             <li className="bg-red-500 rounded-md px-4 py-2 text-white transition duration-300 hover:bg-red-700">
               <button onClick={handleClick}>Salir</button>
             </li>

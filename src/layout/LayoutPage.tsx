@@ -14,6 +14,8 @@ import UserCurrentSchedule from '../users/UserCurrentSchedule';
 import UserCheckIn from '../users/UserCheckIn ';
 import ClassroomsPage from '../classrooms/ClassroomPage';
 import CentersPage from '../center/CenterPage';
+import ClassroomTypesPage from '../classrooms_types/ClassroomTypePage';
+import BuildingsPage from '../buildings/BuildingPage';
 
 
 function LayoutPage() {
@@ -27,17 +29,18 @@ function LayoutPage() {
       <ToastContainer />
       <Routes>
         <Route path="/*" element={<IndexPage />} />
-        <Route path="/index" element={<IndexPage />} />
-        {renderRoute("/departments", <DepartmentsPage />)}
-        {renderRoute("/center", <CentersPage />)}
-        {renderRoute("/classrooms", <ClassroomsPage />)}
-        {/* {renderRoute("/teachers", <TeachersPage />)} */}
-        {renderRoute("/users", <UserPage />)}
-        {renderRoute("/groups", <GroupsPage />)}
-        {renderRoute("/schedules", <SchedulesPage />)}
-        {renderRoute("/centerSchedule", <CenterScheduleHoursPage />)}
+        <Route path="/buildings" element={<BuildingsPage />} />
         <Route path="/current" element={<UserCurrentSchedule />} />
         <Route path="/checkin" element={<UserCheckIn />} />
+        <Route path="/center" element={<CentersPage />} />
+        <Route path="/centerSchedule" element={<CenterScheduleHoursPage />} />
+        <Route path="/classrooms" element={<ClassroomsPage />} />
+        <Route path="/classroomTypes" element={<ClassroomTypesPage />} />
+        <Route path="/departments" element={<DepartmentsPage />} />
+        <Route path="/groups" element={<GroupsPage />} />
+        <Route path="/index" element={<IndexPage />} />
+        <Route path="/schedules" element={<SchedulesPage />} />
+        <Route path="/users" element={<UserPage />} />
       </Routes>
       <Footer />
     </div>
