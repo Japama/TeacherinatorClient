@@ -154,6 +154,8 @@ function ClassroomsPage() {
       data.id = classroom.id;
     }
 
+    console.log(data);
+
     const responseData = await fetchData(method, data);
 
     if (!responseData.id ? true : false) {
