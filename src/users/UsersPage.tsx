@@ -7,6 +7,7 @@ import Pagination from '../templates/Pagination';
 import { useAuth } from '../auth/AuthContext';
 import { Department } from '../departments/Department';
 import { checkLogin } from '../auth/AuthHelpers';
+import { Teacher } from '../teachers/Teacher';
 
 interface UserData {
   id?: number;
@@ -39,6 +40,7 @@ function UsersPage() {
     username: '',
     is_admin: '',
     department: '',
+    teacher: '',
     active: ''
   });
 
@@ -85,7 +87,7 @@ function UsersPage() {
       setTotalUsers(allUsers.length);
     }
   }
-  
+
   async function fetchUsers() {
     const usersResponse = await fetchData("list_users", {
       "filters": buildFilters(),
@@ -95,11 +97,11 @@ function UsersPage() {
         "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
       }
     });
-  
+
     if (usersResponse) {
       const departmentsResponse = await fetchData("list_departments", {
         "filters": {
-          "id": { "$gte": 1000 }
+          "id": { "$gte": 1 }
         },
         "list_options": {
           "order_bys": "id"
@@ -110,7 +112,7 @@ function UsersPage() {
         const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
         const usersWithDetails = usersResponse.map((user: User) => {
           const department = departmentsMap.get(user.department_id);
-  
+
           if (department) {
             user.department = new Department(department);
           }
@@ -122,31 +124,38 @@ function UsersPage() {
       }
     }
   }
-  
-  
+
+
   const buildFilters = () => {
     const filtersObj: any = {};
-  
+
     if (filters.username) {
       filtersObj.username = { "$contains": filters.username };
     }
     if (filters.is_admin !== '') {
-      filtersObj.is_admin = filters.is_admin === 'true';
+      filtersObj.is_admin = { "$eq": filters.is_admin === 'true' };
     }
     if (filters.department) {
-      filtersObj.department_id = parseInt(filters.department);
+      filtersObj.department_id = { "$eq": parseInt(filters.department) };
+    }
+    if (filters.teacher !== '') {
+      if (filters.teacher === 'true') {
+        filtersObj.department_id = { "$not": 1 };
+      } else {
+        filtersObj.department_id = { "$eq": 1 };
+      }
     }
     if (filters.active !== '') {
       filtersObj.active = filters.active === 'true';
     }
-  
+
     // Agregar cualquier otro filtro necesario aquí
     filtersObj.id = { "$gte": 1000 };
-  
+
     return filtersObj;
   }
-  
-  
+
+
 
   const fetchAllData = async () => {
     await fetchAllUsers();
@@ -218,7 +227,7 @@ function UsersPage() {
       [field]: value
     }));
   };
-  
+
 
   const handlePagination = (newPage: number) => {
     setCurrentPage(newPage);
@@ -259,7 +268,7 @@ function UsersPage() {
   useEffect(() => {
     fetchAllData(); // Llama a la función para obtener los datos filtrados
   }, [filters]); // Ejecuta el efecto cada vez que `filters` cambie
-  
+
 
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const paginationRange = 9;
