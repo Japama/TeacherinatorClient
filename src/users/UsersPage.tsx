@@ -34,6 +34,14 @@ function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
+  // Estados para los filtros
+  const [filters, setFilters] = useState({
+    username: '',
+    is_admin: '',
+    department: '',
+    active: ''
+  });
+
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
   }
@@ -66,17 +74,28 @@ function UsersPage() {
     }
   };
 
+  async function fetchAllUsers() {
+    const allUsers = await fetchData("list_users", {
+      "filters": buildFilters(),
+      "list_options": {
+        "order_bys": "id"
+      }
+    });
+    if (allUsers) {
+      setTotalUsers(allUsers.length);
+    }
+  }
+  
   async function fetchUsers() {
     const usersResponse = await fetchData("list_users", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
         "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
       }
     });
+  
     if (usersResponse) {
       const departmentsResponse = await fetchData("list_departments", {
         "filters": {
@@ -91,8 +110,7 @@ function UsersPage() {
         const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
         const usersWithDetails = usersResponse.map((user: User) => {
           const department = departmentsMap.get(user.department_id);
-
-          // Asegúrate de que el departamento y el usuario existen antes de intentar acceder a sus propiedades.
+  
           if (department) {
             user.department = new Department(department);
           }
@@ -104,20 +122,31 @@ function UsersPage() {
       }
     }
   }
-
-  async function fetchAllUsers() {
-    const allUsers = await fetchData("list_users", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
-      "list_options": {
-        "order_bys": "id"
-      }
-    });
-    if (allUsers) {
-      setTotalUsers(allUsers.length);
+  
+  
+  const buildFilters = () => {
+    const filtersObj: any = {};
+  
+    if (filters.username) {
+      filtersObj.username = { "$contains": filters.username };
     }
+    if (filters.is_admin !== '') {
+      filtersObj.is_admin = filters.is_admin === 'true';
+    }
+    if (filters.department) {
+      filtersObj.department_id = parseInt(filters.department);
+    }
+    if (filters.active !== '') {
+      filtersObj.active = filters.active === 'true';
+    }
+  
+    // Agregar cualquier otro filtro necesario aquí
+    filtersObj.id = { "$gte": 1000 };
+  
+    return filtersObj;
   }
+  
+  
 
   const fetchAllData = async () => {
     await fetchAllUsers();
@@ -183,6 +212,14 @@ function UsersPage() {
     }
   };
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [field]: value
+    }));
+  };
+  
+
   const handlePagination = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -219,6 +256,11 @@ function UsersPage() {
     fetchAllData(); // Se ejecutará solo una vez cuando el componente se monta
   }, [currentPage, itemsPerPage]);
 
+  useEffect(() => {
+    fetchAllData(); // Llama a la función para obtener los datos filtrados
+  }, [filters]); // Ejecuta el efecto cada vez que `filters` cambie
+  
+
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
   const paginationRange = 9;
   const halfPaginationRange = Math.floor(paginationRange / 2);
@@ -230,7 +272,7 @@ function UsersPage() {
       <div className='m-4 text-3xl font-semibold text-white'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} departments={departmens} />
+      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} departments={departmens} filters={filters} onFilterChange={handleFilterChange} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
     </div>
   );
