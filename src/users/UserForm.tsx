@@ -112,7 +112,6 @@ function UserForm(props: UserFormProps) {
                         <label htmlFor="departmentId" className="block">Nombre del Departamento</label>
                         <select id="departmentId" name="department_id" value={editedUser.department_id} required onChange={handleSelectChange} className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none">
                             {isCreate ? (<option value="">Seleccionar</option>) : (<></>)}
-                            <option value={1}>Ninguno</option>
                             {departments.map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)}
                         </select>
                     </div>

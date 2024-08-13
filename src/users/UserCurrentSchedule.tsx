@@ -164,7 +164,11 @@ function UserCurrentSchedule() {
 
   const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   return (
-    <div className="p-5 mt-8">
+
+    <div className="mt-8">
+      <div className='m-4 text-3xl font-semibold text-white'>
+        <h1>Tareas</h1>
+      </div>
       {currentScheduleHour && (
         <div className="bg-blue-100 p-4 rounded-lg mb-5 w-3/6 mx-auto">
           <h2 className="text-xl font-bold mb-2">Horario Actual</h2>

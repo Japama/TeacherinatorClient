@@ -226,6 +226,7 @@ function UsersPage() {
       ...prevFilters,
       [field]: value
     }));
+    setCurrentPage(1);
   };
 
 

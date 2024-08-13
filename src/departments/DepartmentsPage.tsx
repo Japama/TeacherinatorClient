@@ -21,6 +21,7 @@ function DepartmentsPage() {
   const [totalDepartments, setTotalDepartments] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [filters, setFilters] = useState({ name: '' });
 
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
@@ -57,6 +58,7 @@ function DepartmentsPage() {
   async function fetchDepartments() {
     const departmentsResponse = await fetchData("list_departments", {
       "filters": {
+        "name": { "$contains": `%${filters.name}%` },
         "id": { "$gte": 1000 }
       },
       "list_options": {
@@ -71,8 +73,9 @@ function DepartmentsPage() {
   }
 
   async function fetchAllDepartments() {
-    const allDepartmentss = await fetchData("list_departments", {
+    const allDepartments = await fetchData("list_departments", {
       "filters": {
+        "name": { "$contains": `%${filters.name}%` },
         "id": { "$gte": 1000 }
       },
       "list_options": {
@@ -80,8 +83,8 @@ function DepartmentsPage() {
       }
     });
 
-    if (allDepartmentss) {
-      setTotalDepartments(allDepartmentss.length);
+    if (allDepartments) {
+      setTotalDepartments(allDepartments.length);
     }
   }
 
@@ -124,7 +127,6 @@ function DepartmentsPage() {
 
   const handleDeleteDepartment = async (department: Department) => {
     try {
-
       if (await fetchData("count_users_by_department", { "id": department.id }) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
@@ -158,10 +160,16 @@ function DepartmentsPage() {
     }
   };
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+    setCurrentPage(1);
+    fetchAllData();
+  };
+
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);
     fetchAllData();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, filters]);
 
   const totalPages = Math.ceil(totalDepartments / itemsPerPage);
   const paginationRange = 9;
@@ -170,11 +178,18 @@ function DepartmentsPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-        <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
-      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
+      <div className='m-4 pt-auto text-3xl font-semibold text-white'>
         <h1>Departamentos</h1>
       </div>
-      <DepartmentList onCreate={handleCreateOrUpdateDepartment} onSave={handleCreateOrUpdateDepartment} departments={departments} onDelete={handleDeleteDepartment} />
+      <DepartmentList
+        onCreate={handleCreateOrUpdateDepartment}
+        onSave={handleCreateOrUpdateDepartment}
+        departments={departments}
+        onDelete={handleDeleteDepartment}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}

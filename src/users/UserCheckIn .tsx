@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { checkLogin } from '../auth/AuthHelpers';
 import { useAuth } from '../auth/AuthContext';
 
-function UserCheckIn () {
+function UserCheckIn() {
   const navigate = useNavigate();
   const { state, getCurrentUser } = useAuth();
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -87,7 +87,10 @@ function UserCheckIn () {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-2/3 bg-slate-300 py-20">
+    <div className="flex flex-col items-center justify-center h-2/3 bg-slate-300 mt-8">
+      <div className='mb-4 text-3xl font-semibold text-white'>
+        <h1>Control de asistencia</h1>
+      </div>
       <div className="p-6 rounded-lg shadow-lg bg-white max-w-sm">
         <h1 className="text-2xl font-bold mb-4">Control de Asistencia</h1>
         <button
