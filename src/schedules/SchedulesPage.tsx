@@ -42,6 +42,8 @@ function SchedulesPage() {
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [scheduleHours, setScheduleHours] = useState<ScheduleHour[]>([]);
   const [centerScheduleHours, setCenterScheduleHours] = useState<CenterScheduleHour[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalEditHourOpen, setIsModalEditHourOpen] = useState(false);
@@ -91,9 +93,7 @@ function SchedulesPage() {
     }
 
     const schedulesResponse = await fetchData("list_schedules", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
@@ -139,14 +139,14 @@ function SchedulesPage() {
       });
 
       setSchedules(schedulesWithAllData);
+      setUsers(usersResponse);
+      setGroups(groupsResponse);
     }
   }
 
   async function fetchAllSchedules() {
     const allScheduless = await fetchData("list_schedules", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id"
       }
@@ -301,6 +301,46 @@ function SchedulesPage() {
     setIsModalEditHourOpen(false);
   };
 
+  const [filters, setFilters] = useState({
+    course: '',
+    user_id: '',
+    user_name: '',
+    group_name: '',
+    only_users: false,
+    only_groups: false,
+  });
+
+  const buildFilters = () => {
+    let filterObj: any = {};
+    if (filters.course) filterObj.course = { "$eq": Number(filters.course) };
+    if (filters.user_id) filterObj["user_id"] = { "$eq": Number(filters.user_id) };
+    if (filters.only_users) filterObj["user_id"] = { "$gt": 0 };
+    if (filters.only_groups) filterObj["group_id"] = { "$gt": 0 };
+    return filterObj;
+  };
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [field]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      course: '',
+      user_id: '',
+      user_name: '',
+      group_name: '',
+      only_users: false,
+      only_groups: false,
+    });
+  };
+
+
+  useEffect(() => {
+    fetchAllData();
+  }, [filters]);
+
+
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);
     fetchAllData();
@@ -317,7 +357,7 @@ function SchedulesPage() {
       <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Horarios</h1>
       </div>
-      <ScheduleList onCreate={handleCreateOrUpdateSchedule} onSave={handleCreateOrUpdateSchedule} schedules={schedules} onDelete={handleDeleteSchedule} onViewDetails={handleViewScheduleDetails} />
+      <ScheduleList onCreate={handleCreateOrUpdateSchedule} onSave={handleCreateOrUpdateSchedule} schedules={schedules} onDelete={handleDeleteSchedule} onViewDetails={handleViewScheduleDetails} filters={filters} onClearFilters={handleClearFilters} onFilterChange={handleFilterChange} users={users} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
       {selectedSchedule && (
         <ScheduleDetails isOpen={isModalOpen} isModalEditHourOpen={isModalEditHourOpen} schedule={selectedSchedule} scheduleHours={scheduleHours} centerScheduleHours={centerScheduleHours} onClose={handleCloseModal} onCloseEdit={handleCloseModalEditHour} onEditScheduleHour={handleCreateOrUpdateScheduleHour} onDelete={handleDeleteScheduleHour} />

@@ -17,7 +17,7 @@ interface ClassroomData {
     number: number;
     name: string;
     type_c: number;
-    description: string;  
+    description: string;
   };
 }
 
@@ -65,9 +65,7 @@ function ClassroomsPage() {
 
   async function fetchClassrooms() {
     const classroomsResponse = await fetchData("list_classrooms", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
@@ -105,7 +103,7 @@ function ClassroomsPage() {
           }
           if (building) {
             classroom.building_object = new Building(building);
-          }          
+          }
           return new Classroom(classroom);
         });
 
@@ -118,9 +116,7 @@ function ClassroomsPage() {
 
   async function fetchAllClassrooms() {
     const allClassroomss = await fetchData("list_classrooms", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id"
       }
@@ -153,8 +149,6 @@ function ClassroomsPage() {
     if (update) {
       data.id = classroom.id;
     }
-
-    console.log(data);
 
     const responseData = await fetchData(method, data);
 
@@ -205,6 +199,47 @@ function ClassroomsPage() {
     }
   };
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [field]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      building: '',
+      floor: '',
+      number: '',
+      name: '',
+      type_c: '',
+      description: '',
+    });
+  };
+
+  const buildFilters = () => {
+    let filterObj: any = {};
+    if (filters.building) filterObj.building = { "$eq": Number(filters.building) };
+    if (filters.floor) filterObj.floor = { "$eq": Number(filters.floor) };
+    if (filters.number) filterObj.number = { "$eq": Number(filters.number) };
+    if (filters.name) filterObj.name = { "$contains": `%${filters.name}%` };
+    if (filters.type_c) filterObj.type_c = { "$eq": Number(filters.type_c) };
+    if (filters.description) filterObj.description = { "$contains": `%${filters.description}%` };
+   
+    return filterObj;
+  };
+
+  const [filters, setFilters] = useState({
+    building: '',
+    floor: '',
+    number: '',
+    name: '',
+    type_c: '',
+    description: '',
+  });
+
+  useEffect(() => {
+    fetchAllData();
+  }, [filters]);
+
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);
     fetchAllData();
@@ -217,11 +252,21 @@ function ClassroomsPage() {
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
   return (
-        <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
-      <div className='m-4  pt-auto text-3xl font-semibold text-white'>
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
+      <div className='m-4 pt-auto text-3xl font-semibold text-white'>
         <h1>Aulas</h1>
       </div>
-      <ClassroomList  classrooms={classrooms} classroomTypes={classroomTypes} buildings={buildings} onCreate={handleCreateOrUpdateClassroom} onSave={handleCreateOrUpdateClassroom} onDelete={handleDeleteClassroom} />
+      <ClassroomList
+        classrooms={classrooms}
+        classroomTypes={classroomTypes}
+        buildings={buildings}
+        onCreate={handleCreateOrUpdateClassroom}
+        onSave={handleCreateOrUpdateClassroom}
+        onDelete={handleDeleteClassroom}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+      />
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}

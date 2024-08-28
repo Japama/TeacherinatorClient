@@ -73,9 +73,7 @@ function GroupsPage() {
     if (usersResponse) {
       setUsers(usersResponse);
       const groupsResponse = await fetchData("list_groups", {
-        "filters": {
-          "id": { "$gte": 1000 }
-        },
+        "filters": buildFilters(),
         "list_options": {
           "order_bys": "id",
           "offset": (currentPage - 1) * itemsPerPage,
@@ -90,9 +88,7 @@ function GroupsPage() {
 
   async function fetchAllGroups() {
     const allGroupss = await fetchData("list_groups", {
-      "filters": {
-        "id": { "$gte": 1000 }
-      },
+      "filters": buildFilters(),
       "list_options": {
         "order_bys": "id"
       }
@@ -182,6 +178,43 @@ function GroupsPage() {
     }
   };
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [field]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+        course: '',
+        year: '',
+        stage: '',
+        tutor_name: '',
+        letter: '',
+    });
+};
+
+  const buildFilters = () => {
+    let filterObj: any = {};
+    if (filters.course) filterObj.course = { "$eq": Number(filters.course) };
+    if (filters.year) filterObj.year = { "$eq": Number(filters.year) };
+    if (filters.stage) filterObj.stage = { "$eq": Number(filters.stage) };
+    if (filters.tutor_name) filterObj.tutor_name = { "$contains": `%${filters.tutor_name}%` };
+    return filterObj;
+  };
+
+  const [filters, setFilters] = useState({
+    course: '',
+    year: '',
+    stage: '',
+    tutor_name: '',
+    letter: '',
+  });
+
+  useEffect(() => {
+    fetchAllData();
+  }, [filters]);
+
+
   useEffect(() => {
     checkLogin(getCurrentUser, navigate);
     fetchAllData();
@@ -193,12 +226,23 @@ function GroupsPage() {
   const startPage = Math.max(1, currentPage - halfPaginationRange);
   const endPage = Math.min(totalPages, startPage + paginationRange - 1);
 
+
   return (
-        <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
+    <div className="flex-grow items-center justify-center bg-transparent w-10/12 mx-auto mt-8">
       <div className='m-4  pt-auto text-3xl font-semibold text-white'>
         <h1>Grupos</h1>
       </div>
-      <GroupList groups={groups} users={users} onCreate={handleCreateOrUpdateGroup} onSave={handleCreateOrUpdateGroup} onDelete={handleDeleteGroup} />
+      <GroupList
+        groups={groups}
+        users={users}
+        onCreate={handleCreateOrUpdateGroup}
+        onSave={handleCreateOrUpdateGroup}
+        onDelete={handleDeleteGroup}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+      />
+
       <Pagination
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}

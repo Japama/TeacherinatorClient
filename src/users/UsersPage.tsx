@@ -263,12 +263,12 @@ function UsersPage() {
     }
     checkLogin(getCurrentUser, navigate);
     checkPage();
-    fetchAllData(); // Se ejecutará solo una vez cuando el componente se monta
+    fetchAllData(); 
   }, [currentPage, itemsPerPage]);
 
   useEffect(() => {
-    fetchAllData(); // Llama a la función para obtener los datos filtrados
-  }, [filters]); // Ejecuta el efecto cada vez que `filters` cambie
+    fetchAllData();
+  }, [filters]);
 
 
   const totalPages = Math.ceil(totalUsers / itemsPerPage);
