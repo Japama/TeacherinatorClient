@@ -7,6 +7,7 @@ import { User } from '../users/User';
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
+import { apiService } from '../services/apiServices';
 
 interface TeacherData {
   id?: string;
@@ -35,51 +36,25 @@ function TeachersPage() {
     toast(message, { position: "top-center" })
   }
 
-  const fetchData = async (method: string, params: object) => {
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "id": 1,
-        "method": method,
-        "params": params
-      }),
-    });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.result;
-    } else {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
-        state.isLoggedIn = false;
-        navigate("/login");
-      } else {
-        throw new Error(errorData.error.message);
-      }
-    }
-  };
 
 
   async function fetchAllTeachers() {
-    const allTeachers = await fetchData("list_teachers", {
+    const allTeachers = await apiService("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id"
       }
-    });
+    }, navigate, state);
     if (allTeachers) {
       setAllTeachers(allTeachers)
     }
   }
 
   async function fetchTeachersWithDetail() {
-    const teachersResponse = await fetchData("list_teachers", {
+    const teachersResponse = await apiService("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -88,22 +63,22 @@ function TeachersPage() {
         "offset": (currentPage - 1) * itemsPerPage,
         "limit": itemsPerPage === 0 ? allTeachers.length : itemsPerPage
       }
-    });
+    }, navigate, state);
 
-    const departmentsResponse = await fetchData("list_departments", {
+    const departmentsResponse = await apiService("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {}
-    });
+    }, navigate, state);
 
 
-    const usersResponse = await fetchData("list_users", {
+    const usersResponse = await apiService("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {}
-    });
+    }, navigate, state);
 
     if (departmentsResponse && teachersResponse && usersResponse) {
       const departmentsMap = new Map(departmentsResponse.map((dept: Department) => [dept.id, dept]));
@@ -142,7 +117,7 @@ function TeachersPage() {
 
   const createUser = async (username: string) => {
     // Actualiza el usuario en la base de datos
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
+    const response = await fetch('http://192.168.3.202:8081/api/rpc', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -186,7 +161,7 @@ function TeachersPage() {
       params.id = teacher.id;
     }
 
-    const responseData = await fetchData(method, params);
+    const responseData = await apiService(method, params, navigate, state);
 
     if (!responseData.id ? true : false) {
       console.error(`Error al ${method === "update_teacher" ? "actualizar" : "crear"} el docente`);
@@ -200,7 +175,7 @@ function TeachersPage() {
 
   const handleDeleteTeacher = async (teacher: Teacher) => {
     try {
-      await fetchData("delete_teacher", { "id": teacher.id });
+      await apiService("delete_teacher", { "id": teacher.id }, navigate, state);
 
       if (teachers.length === 1) {
         setCurrentPage(currentPage - 1);
@@ -235,7 +210,7 @@ function TeachersPage() {
   const checkUsername = async (username: String) => {
     const method = "check_duplicate_username";
     const params = { data: username };
-    return await fetchData(method, params);
+    return await apiService(method, params, navigate, state);
   };
 
   useEffect(() => {

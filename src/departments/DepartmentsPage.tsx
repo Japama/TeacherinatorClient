@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
+import { apiService } from '../services/apiServices';
 
 interface DepartmentData {
   id?: string;
@@ -25,36 +26,10 @@ function DepartmentsPage() {
     toast(message, { position: "top-center" })
   }
 
-  const fetchData = async (method: string, params: object) => {
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "id": 1,
-        "method": method,
-        "params": params
-      }),
-    });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.result;
-    } else {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
-        state.isLoggedIn = false;
-        navigate("/login");
-      } else {
-        throw new Error(errorData.error.message);
-      }
-    }
-  };
 
   async function fetchDepartments() {
-    const departmentsResponse = await fetchData("list_departments", {
+    const departmentsResponse = await apiService("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -63,21 +38,21 @@ function DepartmentsPage() {
         "offset": (currentPage - 1) * itemsPerPage,
         "limit": itemsPerPage === 0 ? totalDepartments : itemsPerPage
       }
-    });
+    }, navigate, state);
     if (departmentsResponse) {
       setDepartments(departmentsResponse);
     }
   }
 
   async function fetchAllDepartments() {
-    const allDepartmentss = await fetchData("list_departments", {
+    const allDepartmentss = await apiService("list_departments", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id"
       }
-    });
+    }, navigate, state);
 
     if (allDepartmentss) {
       setTotalDepartments(allDepartmentss.length);
@@ -102,7 +77,7 @@ function DepartmentsPage() {
       data.id = department.id;
     }
 
-    const responseData = await fetchData(method, data);
+    const responseData = await apiService(method, data, navigate, state);
 
     if (!responseData.id ? true : false) {
       console.error(`Error al ${method === "update_department" ? "actualizar" : "crear"} el departamento`);
@@ -124,12 +99,12 @@ function DepartmentsPage() {
   const handleDeleteDepartment = async (department: Department) => {
     try {
 
-      if (await fetchData("count_teachers_by_department", { "id": department.id }) > 0) {
+      if (await apiService("count_teachers_by_department", { "id": department.id }, navigate, state) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
       }
 
-      await fetchData("delete_department", { "id": department.id });
+      await apiService("delete_department", { "id": department.id }, navigate, state);
       if (departments.length === 1) {
         setCurrentPage(currentPage - 1);
       }

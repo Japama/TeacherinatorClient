@@ -1,8 +1,8 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import Cookies from "js-cookie";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { loginService, logoutService } from '../src/services/apiServices';
 
 // Definir las acciones relacionadas con la autenticación
 type AuthAction = { type: 'LOGIN', username: string, isAdmin: boolean } | { type: 'LOGOUT' };
@@ -12,15 +12,6 @@ interface AuthState {
   isLoggedIn: boolean;
   username: string | null;
   isAdmin: boolean;
-}
-
-interface LoginForm {
-  username: string;
-  pwd: string;
-}
-
-interface LogoutForm {
-  logoff: boolean;
 }
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -35,13 +26,13 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 // Estado inicial
-const initialState: AuthState = { isLoggedIn: false, username: null, isAdmin: false};
+const initialState: AuthState = { isLoggedIn: false, username: null, isAdmin: false };
 
 // Crear el contexto de autenticación
 const AuthContext = createContext<{
   state: AuthState;
-  login: (formData: LoginForm) => Promise<void>;
-  logout: () => void;
+  login: (formData: { username: string; pwd: string }) => Promise<void>;
+  logout: () => Promise<void>;
 } | undefined>(undefined);
 
 // Proveedor de autenticación
@@ -49,55 +40,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [state, dispatch] = useReducer(authReducer, initialState);
   const navigate = useNavigate();
 
-  const login = async (formData: LoginForm) => {
-    if(!state.isLoggedIn){
-      try {
-        const response = await fetch('http://127.0.0.1:8081/api/login', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          dispatch({ type: 'LOGIN', username: formData.username, isAdmin: data.result.is_admin });
-          Cookies.set('loged_in', 'true', {expires: 1 / 24});
-          navigate("/checkin");
-        } else {
-          notify("Usuario o contraseña incorrectos");
-          throw new Error('Login failed');
-        }
-      } catch (error) {
-        console.error('Error al iniciar sesión', error);
-        dispatch({ type: 'LOGOUT' });
-      }
-    }
-  };
-
-  const logout = async () => {
-    let logoutForm : LogoutForm = { logoff: true };
-    const response = await fetch('http://127.0.0.1:8081/api/logoff', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(logoutForm),
-    });
-
-    if (response.ok) {
+  const login = async (formData: { username: string; pwd: string }) => {
+    try {
+      const result = await loginService(formData);
+      dispatch({ type: 'LOGIN', username: formData.username, isAdmin: result.is_admin });
+      toast('Inicio de sesión exitoso', { position: 'top-center' });
+      navigate('/checkin');
+    } catch (error) {
+      console.error('Error al iniciar sesión', error);
+      toast('Usuario o contraseña incorrectos', { position: 'top-center' });
       dispatch({ type: 'LOGOUT' });
     }
   };
 
-  const notify = (message: string) => {
-    toast(message, { position: "top-center" })
-}
+  const logout = async () => {
+    try {
+      await logoutService();
+      dispatch({ type: 'LOGOUT' });
+      toast('Cierre de sesión exitoso', { position: 'top-center' });
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión', error);
+      toast('Error al cerrar sesión', { position: 'top-center' });
+    }
+  };
 
   return (
-    
     <AuthContext.Provider value={{ state, login, logout }}>
       {children}
     </AuthContext.Provider>

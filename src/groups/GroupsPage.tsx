@@ -7,6 +7,7 @@ import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
 import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
+import { apiService } from '../services/apiServices';
 
 interface GroupData {
   id?: number;
@@ -27,37 +28,11 @@ function GroupsPage() {
     toast(message, { position: "top-center" })
   }
 
-  const fetchData = async (method: string, params: object) => {
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "id": 1,
-        "method": method,
-        "params": params
-      }),
-    });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.result;
-    } else {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
-        state.isLoggedIn = false;
-        navigate("/login");
-      } else {
-        throw new Error(errorData.error.message);
-      }
-    }
-  };
 
   async function fetchGroups() {
     
-    const teachersResponse = await fetchData("list_teachers", {
+    const teachersResponse = await apiService("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -65,14 +40,14 @@ function GroupsPage() {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
       }
-    });
+    }, navigate, state);
 
-    const usersResponse = await fetchData("list_users", {
+    const usersResponse = await apiService("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {}
-    });
+    }, navigate, state);
 
     if (teachersResponse && usersResponse) {
       const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
@@ -83,9 +58,9 @@ function GroupsPage() {
         }
 
         return new Teacher(teacher);
-      });
+      }, navigate, state);
 
-      const groupsResponse = await fetchData("list_groups", {
+      const groupsResponse = await apiService("list_groups", {
         "filters": {
           "id": { "$gte": 1000 }
         },
@@ -94,7 +69,7 @@ function GroupsPage() {
           "offset": (currentPage - 1) * itemsPerPage,
           "limit": itemsPerPage === 0 ? totalGroups : itemsPerPage
         }
-      });
+      }, navigate, state);
       if (groupsResponse) {
         // Mapear los grupos con los profesores
         const updatedGroups = groupsResponse.map((group: Group) => {
@@ -110,14 +85,14 @@ function GroupsPage() {
   }
 
   async function fetchAllGroups() {
-    const allGroupss = await fetchData("list_groups", {
+    const allGroupss = await apiService("list_groups", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id"
       }
-    });
+    }, navigate, state);
 
     if (allGroupss) {
       setTotalGroups(allGroupss.length);
@@ -142,7 +117,7 @@ function GroupsPage() {
       data.id = group.id;
     }
 
-    const responseData = await fetchData(method, data);
+    const responseData = await apiService(method, data, navigate, state);
 
     if (!responseData.id ? true : false) {
       console.error(`Error al ${method === "update_group" ? "actualizar" : "crear"} el departamento`);
@@ -164,12 +139,12 @@ function GroupsPage() {
   const handleDeleteGroup = async (group: Group) => {
     try {
 
-      if (await fetchData("count_teachers_by_group", { "id": group.id }) > 0) {
+      if (await apiService("count_teachers_by_group", { "id": group.id }, navigate, state) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
       }
 
-      await fetchData("delete_group", { "id": group.id });
+      await apiService("delete_group", { "id": group.id }, navigate, state);
       if (groups.length === 1) {
         setCurrentPage(currentPage - 1);
       }

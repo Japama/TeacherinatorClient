@@ -2,15 +2,18 @@ import React, { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { apiService } from '../services/apiServices';
+import { useAuth } from '../AuthContext';
 
 function TeacherCheckIn() {
   const navigate = useNavigate();
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [lastActionTime, setLastActionTime] = useState('');
-
+  const { state } = useAuth();
+  
   const handleCheckIn = async () => {
     const method = isCheckedIn ? 'user_checkout' : 'user_checkin';
-    const result = await fetchData(method, {});
+    const result = await apiService(method, {}, navigate, state);
     if (result) {
       setIsCheckedIn(!isCheckedIn);
       const date = new Date();
@@ -27,7 +30,7 @@ function TeacherCheckIn() {
 
   const fetchData = async (method: string, params: object) => {
     try {
-      const response = await fetch('http://127.0.0.1:8081/api/rpc', {
+      const response = await fetch('http://192.168.3.202:8081/api/rpc', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -66,7 +69,7 @@ function TeacherCheckIn() {
     checkLogin();
 
     // Llama a get_current_user y establece el estado de isCheckedIn
-    fetchData("get_current_user", {}).then(user => {
+    apiService("get_current_user", {}, navigate, state).then(user => {
       if (user) {
         setIsCheckedIn(user.in_center);
         const lastAction = user.in_center ? user.last_checkin : user.last_checkout;

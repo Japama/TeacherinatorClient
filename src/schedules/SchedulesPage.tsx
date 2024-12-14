@@ -11,6 +11,7 @@ import { Teacher } from '../teachers/Teacher';
 import { User } from '../users/User';
 import { Group } from '../groups/Group';
 import { CenterScheduleHour } from './CenterScheduleHour';
+import { apiService } from '../services/apiServices';
 
 interface ScheduleData {
   id?: number;
@@ -31,52 +32,27 @@ function SchedulesPage() {
   const [centerScheduleHours, setCenterScheduleHours] = useState<CenterScheduleHour[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
   }
 
-  const fetchData = async (method: string, params: object) => {
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "id": 1,
-        "method": method,
-        "params": params
-      }),
-    });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.result;
-    } else {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
-        state.isLoggedIn = false;
-        navigate("/login");
-      } else {
-        throw new Error(errorData.error.message);
-      }
-    }
-  };
 
   async function fetchSchedules() {
-    const centerScheduleHoursResponse = await fetchData("list_center_schedule_hours", {
+    const centerScheduleHoursResponse = await apiService("list_center_schedule_hours", {
       "filters": {
       },
       "list_options": {
         "order_bys": "n_hour"
       }
-    });
-    if(centerScheduleHoursResponse){
+    },
+      navigate,
+      state);
+    if (centerScheduleHoursResponse) {
       setCenterScheduleHours(centerScheduleHoursResponse);
     }
 
-    const schedulesResponse = await fetchData("list_schedules", {
+    const schedulesResponse = await apiService("list_schedules", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -85,9 +61,11 @@ function SchedulesPage() {
         "offset": (currentPage - 1) * itemsPerPage,
         "limit": itemsPerPage === 0 ? totalSchedules : itemsPerPage
       }
-    });
+    },
+      navigate,
+      state);
 
-    const teachersResponse = await fetchData("list_teachers", {
+    const teachersResponse = await apiService("list_teachers", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -95,24 +73,30 @@ function SchedulesPage() {
         "order_bys": "id",
         "offset": (currentPage - 1) * itemsPerPage,
       }
-    });
+    },
+      navigate,
+      state);
 
-    const usersResponse = await fetchData("list_users", {
+    const usersResponse = await apiService("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {}
-    });
+    },
+    navigate,
+    state);
 
-    
-    const groupsResponse = await fetchData("list_groups", {
+
+    const groupsResponse = await apiService("list_groups", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {}
-    });
+    },
+    navigate,
+    state);
 
-    
+
     if (teachersResponse && usersResponse && schedulesResponse && groupsResponse) {
       const teachersWithDetails = teachersResponse.map((teacher: Teacher) => {
         const usersMap = new Map(usersResponse.map((user: User) => [user.id, user]));
@@ -149,14 +133,16 @@ function SchedulesPage() {
   }
 
   async function fetchAllSchedules() {
-    const allScheduless = await fetchData("list_schedules", {
+    const allScheduless = await apiService("list_schedules", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id"
       }
-    });
+    },
+    navigate,
+    state);
 
     if (allScheduless) {
       setTotalSchedules(allScheduless.length);
@@ -181,7 +167,7 @@ function SchedulesPage() {
       data.id = schedule.id;
     }
 
-    const responseData = await fetchData(method, data);
+    const responseData = await apiService(method, data, navigate, state);
 
     if (!responseData.id ? true : false) {
       console.error(`Error al ${method === "update_schedule" ? "actualizar" : "crear"} el departamento`);
@@ -203,12 +189,12 @@ function SchedulesPage() {
   const handleDeleteSchedule = async (schedule: Schedule) => {
     try {
 
-      if (await fetchData("count_teachers_by_schedule", { "id": schedule.id }) > 0) {
+      if (await apiService("count_teachers_by_schedule", { "id": schedule.id }, navigate, state) > 0) {
         notify("No se puede borrar el departamento porque hay docentes que pertenecen a él");
         return;
       }
 
-      await fetchData("delete_schedule", { "id": schedule.id });
+      await apiService("delete_schedule", { "id": schedule.id }, navigate, state);
       if (schedules.length === 1) {
         setCurrentPage(currentPage - 1);
       }
@@ -241,11 +227,13 @@ function SchedulesPage() {
     setIsModalOpen(true);
 
     try {
-      const scheduleHoursResponse = await fetchData("list_schedule_hours", {
+      const scheduleHoursResponse = await apiService("list_schedule_hours", {
         "filters": {
           "schedule_id": schedule.id
         }
-      });
+      },
+      navigate,
+      state);
       if (scheduleHoursResponse) {
         setScheduleHours(scheduleHoursResponse);
       }

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
+import { apiService } from '../services/apiServices';
 
 interface UserData {
   id?: number;
@@ -28,36 +29,10 @@ function UsersPage() {
     toast(message, { position: "top-center" })
   }
 
-  const fetchData = async (method: string, params: object) => {
-    const response = await fetch('http://127.0.0.1:8081/api/rpc', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "id": 1,
-        "method": method,
-        "params": params
-      }),
-    });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.result;
-    } else {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
-        state.isLoggedIn = false;
-        navigate("/login");
-      } else {
-        throw new Error(errorData.error.message);
-      }
-    }
-  };
 
   async function fetchUsers() {
-    const usersResponse = await fetchData("list_users", {
+    const usersResponse = await apiService("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
       },
@@ -66,21 +41,25 @@ function UsersPage() {
         "offset": (currentPage - 1) * itemsPerPage,
         "limit": itemsPerPage === 0 ? totalUsers : itemsPerPage
       }
-    });
+    },
+    navigate,
+    state);
     if (usersResponse) {
       setUsers(usersResponse);
     }
   }
 
   async function fetchAllUsers() {
-    const allUsers = await fetchData("list_users", {
+    const allUsers = await apiService("list_users", {
       "filters": {
         "id": { "$gte": 1000 }
       },
       "list_options": {
         "order_bys": "id"
       }
-    });
+    },
+    navigate,
+    state);
     if (allUsers) {
       setTotalUsers(allUsers.length);
     }
@@ -112,7 +91,7 @@ function UsersPage() {
       data.id = user.id;
     }
 
-    const responseData = await fetchData(method, data);
+    const responseData = await apiService(method, data, navigate, state);
 
     if (!responseData.id ? true : false) {
       console.error(`Error al ${method === "update_user_pwd" ? "actualizar" : "crear"} el usuario`);
@@ -133,7 +112,7 @@ function UsersPage() {
 
   const handleDeleteUser = async (user: User) => {
     try {
-      await fetchData("delete_user", { "id": user.id });
+      await apiService("delete_user", { "id": user.id }, navigate, state);
 
       if (users.length === 1) {
         setCurrentPage(currentPage - 1);
@@ -166,7 +145,7 @@ function UsersPage() {
   const checkUsername = async (username: String) => {
     const method = "check_duplicate_username";
     const params = { data: username };
-    return await fetchData(method, params);
+    return await apiService(method, params, navigate, state);
   };
 
   useEffect(() => {

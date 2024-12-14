@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ScheduleHour } from '../schedules/ScheduleHour';
 import { CenterScheduleHour } from '../schedules/CenterScheduleHour';
+import { apiService } from '../services/apiServices';
+import { useAuth } from '../AuthContext';
 
 function TeachersCurrentSchedule() {
   const navigate = useNavigate();
   const [currentScheduleHour, setCurrentScheduleHour] = useState<ScheduleHour | null>(null);
   const [nextScheduleHour, setNextScheduleHour] = useState<ScheduleHour | null>(null);
   const [centerScheduleHours, setCenterScheduleHours] = useState<[CenterScheduleHour] | null>(null);
-
+  const { state } = useAuth();
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
   }
@@ -23,7 +25,7 @@ function TeachersCurrentSchedule() {
         "params": params
       })
       console.log(body);
-      const response = await fetch('http://127.0.0.1:8081/api/rpc', {
+      const response = await fetch('http://192.168.3.202:8081/api/rpc', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -55,7 +57,7 @@ function TeachersCurrentSchedule() {
 
   const fetchAllData = async () => {
 
-    const centerScheduleHours: [CenterScheduleHour] = await fetchData("list_center_schedule_hours", {
+    const centerScheduleHours: [CenterScheduleHour] = await apiService("list_center_schedule_hours", {
       "filters": {
         // "id": { "$gte": 1000 }
       },
@@ -65,12 +67,12 @@ function TeachersCurrentSchedule() {
           "week_day"
       ]
       }
-    });
+    }, navigate, state);
     if (!centerScheduleHours) return;
     setCenterScheduleHours(centerScheduleHours);
-    const schedule = await fetchData("get_user_schedule", {});
+    const schedule = await apiService("get_user_schedule", {}, navigate, state);
     if (!schedule) return;
-    const scheduleHours = await fetchData("list_schedule_hours", {
+    const scheduleHours = await apiService("list_schedule_hours", {
       "filters": {
         "schedule_id": schedule.id
       },
@@ -80,7 +82,7 @@ function TeachersCurrentSchedule() {
           "week_day"
       ]
       }
-    });
+    }, navigate, state);
     if (!scheduleHours) return;
 
     // Obtén la hora y el día de la semana actuales
