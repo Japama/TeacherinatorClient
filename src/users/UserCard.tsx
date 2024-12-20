@@ -1,16 +1,18 @@
 import { User } from './User';
 import { confirmAlert } from 'react-confirm-alert'; // Importa este paquete
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa este CSS
+import { Department } from '../departments/Department';
 // import Modal from './Modal';
 
 interface UserCardProps {
     user: User;
     onEdit: (user: User) => void;
     onDelete: (user: User) => void;
+    department: Department | undefined; // Add department prop
 }
 
 function UserCard(props: UserCardProps) {
-    const { user, onEdit } = props;
+    const { user, onEdit, department } = props;
 
     const handleEditClick = () => {
         onEdit(user);
@@ -40,6 +42,15 @@ function UserCard(props: UserCardProps) {
                 </td>
                 <td className="px-6 py-4 text-start">
                     {user.username}
+                </td>
+                <td className="px-6 py-4 text-start">
+                    {user.inCenter ? '✔️' : '❌'}
+                </td>
+                <td className="px-6 py-4 text-start">
+                    {user.active ? '✔️' : '❌'}
+                </td>
+                <td className="px-6 py-4 text-start">
+                    {department ? department.name : 'N/A'}
                 </td>
                 <td className="px-6 py-4 text-start "> {user.isadmin ? '✔️' : '❌'} </td>
                 <td className="px-6 py-4 text-start">

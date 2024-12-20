@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Pagination from '../templates/Pagination';
 import { useAuth } from '../AuthContext';
 import { apiService } from '../services/apiServices';
+import { Department } from '../departments/Department';
 
 interface UserData {
   id?: number;
@@ -13,6 +14,8 @@ interface UserData {
     username: string;
     isadmin: boolean;
     pwd: string;
+    active: boolean;
+    department_id: string;
   };
 }
 
@@ -20,6 +23,7 @@ function UsersPage() {
   const { state } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,8 +32,6 @@ function UsersPage() {
   const notify = (message: string) => {
     toast(message, { position: "top-center" })
   }
-
-
 
   async function fetchUsers() {
     const usersResponse = await apiService("list_users", {
@@ -65,9 +67,23 @@ function UsersPage() {
     }
   }
 
+  async function fetchDepartments() {
+    const departmentsResponse = await apiService("list_departments", {
+      "filters": {
+        "id": { "$gte": 1000 }
+      },
+      "list_options": {}
+    }, navigate, state);
+
+    if (departmentsResponse) {
+      setDepartments(departmentsResponse);
+    }
+  }
+
   const fetchAllData = async () => {
     await fetchAllUsers();
     await fetchUsers();
+    await fetchDepartments();
   };
 
   const checkLogin = () => {
@@ -83,7 +99,9 @@ function UsersPage() {
       data: {
         username: user.username,
         isadmin: user.isadmin,
-        pwd: user.pwd
+        pwd: user.pwd,
+        active: user.active,
+        department_id: user.department_id
       }
     };
 
@@ -174,7 +192,7 @@ function UsersPage() {
       <div className='p-8 pt-auto text-3xl font-semibold text-gray-800'>
         <h1>Usuarios</h1>
       </div>
-      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} />
+      <UserList onCreate={handleCreateOrUpdateUser} onSave={handleCreateOrUpdateUser} onDelete={handleDeleteUser} users={users} checkUsername={checkUsername} departments={departments} />
       <Pagination itemsPerPage={itemsPerPage} handleItemsPerPageChange={handleItemsPerPageChange} currentPage={currentPage} handlePagination={handlePagination} endPage={endPage} startPage={startPage} totalPages={totalPages} />
     </div>
   );

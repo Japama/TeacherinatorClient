@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User } from './User';
+import { Department } from '../departments/Department';
 import { toast } from 'react-toastify';
 
 interface UserFormProps {
@@ -10,10 +11,11 @@ interface UserFormProps {
     onCreate: (user: User) => void;
     checkUsername: (username: string) => Promise<boolean>;
     user: User;
+    departments: Department[]; // Add departments prop
 }
 
 function UserForm(props: UserFormProps) {
-    const { isOpen, isCreate, onClose, onEdit, onCreate, user, checkUsername } = props;
+    const { isOpen, isCreate, onClose, onEdit, onCreate, user, checkUsername, departments } = props;
     const [editedUser, setEditedUser] = useState(user);
     const [isChangePasswordChecked, setIsChangePasswordChecked] = useState(false);
 
@@ -24,6 +26,11 @@ function UserForm(props: UserFormProps) {
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const updatedUser = new User({ ...editedUser, [event.target.name]: event.target.checked });
+        setEditedUser(updatedUser);
+    };
+
+    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const updatedUser = new User({ ...editedUser, department_id: event.target.value });
         setEditedUser(updatedUser);
     };
 
@@ -75,6 +82,32 @@ function UserForm(props: UserFormProps) {
                             onChange={handleCheckboxChange}
                             className="rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none"
                         />
+                    </div>
+                    <div className="relative">
+                        <label htmlFor="active" className="block">Activo:</label>
+                        <input
+                            id="active"
+                            type="checkbox"
+                            name="active"
+                            checked={editedUser.active}
+                            onChange={handleCheckboxChange}
+                            className="rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none"
+                        />
+                    </div>
+                    <div className="relative">
+                        <label htmlFor="department_id" className="block">Departamento:</label>
+                        <select
+                            id="department_id"
+                            name="department_id"
+                            value={editedUser.department_id}
+                            onChange={handleSelectChange}
+                            className=" text-center rounded-md  p-3 block w-full px-10 drop-shadow-lg outline-none"
+                        >
+                            {isCreate && <option value="">Seleccionar</option>}
+                            {departments.map(department => (
+                                <option key={department.id} value={department.id}>{department.name}</option>
+                            ))}
+                        </select>
                     </div>
                     {!isCreate && (
                         <div className="relative">

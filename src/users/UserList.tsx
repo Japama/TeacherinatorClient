@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User } from './User';
 import UserCard from './UserCard';
 import UserForm from './UserForm';
+import { Department } from '../departments/Department';
 
 interface UserListProps {
     users: User[];
@@ -9,9 +10,10 @@ interface UserListProps {
     onSave: (user: User) => void;
     onDelete: (user: User) => void;
     checkUsername: (username: string) => Promise<boolean>;
+    departments: Department[]; // Add departments prop
 }
 
-function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserListProps) {
+function UserList({ users, onCreate, onSave, onDelete, checkUsername, departments }: UserListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreate, setisCreate] = useState(false);
     const [userBeingEdited, setUserBeingEdited] = useState<User | null>(null);
@@ -27,10 +29,12 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
         setUserBeingEdited(null);
     };
 
-    const items = users.map(user => (
-        <UserCard key={user.id} user={user} onEdit={handleEdit} onDelete={onDelete} />
-    ));
-
+    const items = users.map(user => {
+        const department = departments.find(dept => dept.id === user.department_id);
+        return (
+            <UserCard key={user.id} user={user} onEdit={handleEdit} onDelete={onDelete} department={department} />
+        );
+    });
 
     const openForm = () => {
         setUserBeingEdited(new User());
@@ -54,6 +58,7 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
                     onCreate={onCreate}
                     user={userBeingEdited}
                     checkUsername={checkUsername}
+                    departments={departments}
                 />
             )}
             {!userBeingEdited && (
@@ -65,6 +70,8 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
                     onCreate={onCreate}
                     user={new User()}
                     checkUsername={checkUsername}
+                    departments={departments}
+
                 />
             )}
             <table className="min-w-full border border-gray-200 bg-white shadow-lg">
@@ -74,6 +81,9 @@ function UserList({ users, onCreate, onSave, onDelete, checkUsername }: UserList
                             <input type="checkbox" id="myCheckbox" className="flex h-6 w-6 items-center rounded-full  border-2 border-red-500 bg-red-500 text-red-500 focus:border-red-400 focus:ring-red-400" />
                         </th>
                         <th className="px-6 py-4 text-start">Nombre</th>
+                        <th className="px-6 py-4 text-start">En Centro</th>
+                        <th className="px-6 py-4 text-start">Activo</th>
+                        <th className="px-6 py-4 text-start">Departamento</th>
                         <th className="px-6 py-4 text-start">Es administrador</th>
                         <th className="px-6 py-4 text-start">Editar</th>
                         <th className="px-6 py-4 text-start">Eliminar</th>
