@@ -22,17 +22,17 @@ export const apiService = async (method: string, params: object, navigate: Funct
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      if (errorData.error.message === 'NO_AUTH') {
+      if (data.error.message === 'NO_AUTH') {
         authState.isLoggedIn = false;
         navigate('/login');
       } else {
-        throw new Error(errorData.error.message);
+        throw new Error(data.error.message);
       }
     }
 
-    const data = await response.json();
     return data.result;
   } catch (error) {
     console.error(`Error in API call (${method}):`, error);
